@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.ServletException;
 
 // local
-import com.github.bjarneh.api.API;
+import com.github.bjarneh.stal.api.API;
 
 
 /**
@@ -46,10 +46,10 @@ public class ApiServlet extends HttpServlet {
     public void init() throws ServletException {
         try {
             api = API.getAPI();
-        } catch ( ClassNotFoundException e ) {
+        } catch ( Exception e ) {
             throw new ServletException( e );
         }
-        log.info("API successfully loaded.... ");
+        log.info("API.init called again...");
     }
 
 

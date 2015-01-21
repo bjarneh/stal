@@ -1,0 +1,305 @@
+@import url(http://fonts.googleapis.com/css?family=Ubuntu);
+
+body {
+    color: #ffffff;
+    background-color: #150517;
+}
+
+* {
+    padding:0px;
+    border:0px;
+    margin:0px;
+    border-radius: 0px;
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    -ie-border-radius: 0px;
+    font-family: 'Ubuntu', Serif;
+    font-size: 16px;
+}
+
+
+/* global style */
+
+a {
+    color: #ffffff;
+}
+
+ul{
+    list-style: none;
+}
+
+
+tr.padder {
+    height: 20px;
+}
+
+.rightalign {
+    text-align: right;
+}
+
+table.megalinks {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+}
+
+table.megalinks td {
+    border: 1px solid white;
+    text-align: center;
+}
+
+table.megalinks a {
+    text-decoration: none;
+    display: block;
+    padding: 100px;
+    font-size: 25px;
+}
+
+table.megalinks a:hover {
+    background-color: #333333; /* dark grey */
+}
+
+
+div.rightpane {
+    position: fixed;
+    width: 140px;
+    bottom: 10px;
+    right: 5px;
+}
+
+div.yearpane {
+    margin-top: 30px;
+    margin-bottom: 10px;
+    width: 90%;
+    border: 1px solid #333333;
+    padding: 5px;
+}
+
+a.yearlink {
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 21px;
+}
+
+
+div.wrapper {
+    margin-top: 30px;
+    max-width: 85%;
+}
+
+div.leftpane {
+    float: left;
+}
+
+div.centerpane {
+    margin-left: 55px;
+    float: left;
+}
+
+div.bottomleftpane {
+    position: fixed;
+    bottom: 0px;
+    left: 15px;
+    height: 40px;
+    width: 100px;
+}
+
+input.savebutton {
+    color: white;
+    font-size: 16px;
+    background-color: green;
+    padding: 4px 8px 4px 8px;
+}
+
+input.savebutton:hover {
+    background-color: #333333;
+}
+
+table.months {
+    margin-top: 20px;
+    width: 95%;
+}
+
+
+table.months a {
+    text-decoration: none;
+    display: block;
+    padding: 7px ;
+}
+
+table.months a:hover {
+    background-color: #333333; /* dark grey */
+}
+
+table.month th {
+    min-width: 25px;
+    text-align: right;
+}
+
+table.month td {
+    text-align: right;
+}
+
+table.month a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+}
+table.month a:hover {
+    background-color: #333333; /* dark grey */
+}
+
+table.timesheet {
+    margin-top: 35px;
+}
+
+table.timesheet td {
+    /* dark grey */
+    border: 1px solid #333333;
+}
+
+
+table.timesheet input {
+    color: inherit;
+    background-color: transparent;
+    border: 0px;
+    padding: 0px;
+    font-size: 16px;
+}
+
+table.timesheet textarea {
+    color: inherit;
+    background-color: transparent;
+    padding: 0px;
+    width: 100%;
+    height: 63px;
+    font-size: 16px;
+}
+
+table.overview {
+    font-size: 14px;
+}
+
+table.overview td {
+    padding: 3px 7px 3px 7px;
+    border: 1px solid #333333;
+}
+
+table.overview th {
+    padding: 3px 7px 3px 7px;
+    text-align: right;
+    background-color: green;
+}
+
+div.overviewpane {
+    margin-top: 35px;
+    max-width: 80%;
+}
+
+a.active {
+    background-color: green;
+}
+a.nounderline {
+    text-decoration: none;
+}
+
+td.active {
+    background-color: green;
+}
+
+td.active a:hover {
+    color: yellow;
+}
+
+td.week {
+    padding-left: 30px;
+    color: green;
+}
+
+
+/* company.jsp */
+
+div.companyleft {
+    margin-top: 35px;
+    width: 23%;
+    max-width: 300px;
+}
+
+table.companies a {
+    text-decoration: none;
+    display: block;
+    padding: 5px;
+}
+
+table.companies a:hover {
+    background-color: #333333; /* dark grey */
+}
+
+table.company th {
+    font-size: 16px;
+    text-align: right;
+    padding-right: 7px;
+}
+
+table.company td {
+    border: 1px solid #333333;
+}
+
+table.company input {
+    font-size: 16px;
+    min-width: 450px;
+    color: #ffffff;
+    background-color: transparent;
+}
+
+table.company textarea {
+    font-size: 16px;
+    min-width: 450px;
+    min-height: 70px;
+    color: #ffffff;
+    background-color: transparent;
+}
+
+div.companyright {
+    position: fixed;
+    right: 10px;
+    top: 100px;
+}
+
+
+/* special dropdown menu in css */
+div.nav {
+    position: absolute;
+    top: 25px;
+    right: 10px;
+    background-color: red;
+    width: 145px;
+    z-index: 320;
+}
+div.nav li {
+    display: block;
+    margin-left: 0px;
+    border: 0px 1px 1px 1px solid black;
+}
+div.nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+div.nav a {
+    display: block;
+    text-decoration: none;
+    font-size: 17px;
+    background-color: #150517;
+    padding: 5px 10px 5px 10px;
+    border: 1px solid #ffffff;
+}
+div.nav a:hover {
+    background-color: green;
+}
+div.nav > ul > li > ul {
+    display: none;
+}
+div.nav > ul > li:hover > ul {
+    display: block;
+}

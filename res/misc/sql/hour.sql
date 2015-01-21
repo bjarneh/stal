@@ -1,0 +1,55 @@
+
+CREATE TABLE DAY (
+    ID DATE,
+    PRIMARY KEY(ID)
+);
+
+---------------------------------
+
+CREATE TABLE JOB (
+    ID      BIGINT IDENTITY,
+    DAYID   DATE,
+    COMPANY VARCHAR(70),
+    START   DATETIME,
+    STOP    DATETIME,
+    TOTAL   DOUBLE,
+    WHAT    VARCHAR(500)
+);
+
+---------------------------------
+
+CREATE TABLE PAY (
+    COMPANY     VARCHAR(70),
+    CONTACT     VARCHAR(100),
+    ADDRESS     VARCHAR(200),
+    EMAIL       VARCHAR(100),
+    PHONE       VARCHAR(20),
+    ASSIGNMENT  VARCHAR(500),
+    PRIMARY KEY(COMPANY)
+);
+
+---------------------------------
+
+ALTER TABLE JOB
+ADD FOREIGN KEY(COMPANY)
+REFERENCES PAY(COMPANY)
+ON UPDATE CASCADE
+ON DELETE CASCADE;
+
+---------------------------------
+
+ALTER TABLE JOB
+ADD FOREIGN KEY(DAYID)
+REFERENCES DAY(ID)
+ON UPDATE CASCADE
+ON DELETE CASCADE;
+
+
+---------------------------------
+
+CREATE TABLE USER(
+    ID      VARCHAR(128),
+    NAME    VARCHAR(512),
+    PRIMARY KEY(ID)
+);
+

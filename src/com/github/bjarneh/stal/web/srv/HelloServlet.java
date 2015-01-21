@@ -17,15 +17,20 @@ import javax.servlet.http.HttpServletResponse;
 // local
 import com.github.bjarneh.stal.types.User;
 
+
 public class HelloServlet extends ApiServlet {
+
 
     private String greeting = "Session";
 
+
     public HelloServlet(){}
+
 
     public HelloServlet(String greeting) {
         this.greeting=greeting;
     }
+
 
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
         throws ServletException, IOException
@@ -50,7 +55,6 @@ public class HelloServlet extends ApiServlet {
                 writer.println("</dl>");
             }
         }
-
     }
 
 

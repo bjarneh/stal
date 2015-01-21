@@ -4,6 +4,7 @@
 
 package com.github.bjarneh.stal.types;
 
+// Row in the USER table
 public class User {
 
     public String id;

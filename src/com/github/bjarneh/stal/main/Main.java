@@ -27,12 +27,16 @@ import org.eclipse.jetty.util.log.Logger;
 
 // libb
 import com.github.bjarneh.utilz.io;
+import com.github.bjarneh.utilz.res;
 import com.github.bjarneh.utilz.path;
 import com.github.bjarneh.utilz.globals;
 import com.github.bjarneh.parse.options.Getopt;
 
 // local
 import com.github.bjarneh.web.srv.HelloServlet;
+import com.github.bjarneh.web.srv.CalendarServlet;
+import com.github.bjarneh.web.srv.OverviewServlet;
+
 
 /**
  * Entry point for the embedded Jetty web-app.
@@ -59,8 +63,8 @@ public class Main {
         " options:                                                  \n"+
         "  -h  --help    : print this menu and exit                 \n"+
         "  -v  --version : print version and exit                   \n"+
-        "  -s  --store   : store [default:$HOME/.config/stal]       \n"+
-        "  -r  --root    : set webroot [default:$PWD]               \n"+
+        "  -s  --store   : store [default:$HOME/.stal/store/db]     \n"+
+        "  -r  --root    : set webroot [default:built-in]           \n"+
         "  -p  --port    : set port number [default:7676]           \n";
 
 
@@ -72,11 +76,11 @@ public class Main {
 
     // all string options have a default as well
     static HashMap<String, String> strMap = new HashMap<String, String>(){{
-        put("-root", ".");
+        put("-root", null);
         put("-port", "7676");
         put("-store", 
                 path.join(System.getProperty("user.home"), 
-                                 path.fromSlash(".stal/db")));
+                                 path.fromSlash(".stal/store/db")));
     }};
 
 
@@ -90,9 +94,11 @@ public class Main {
 
 
     // Servlets
-    // PATH => Servlet
+    // PATH => Servlet [without the d, i.e. d/hello => hello servlet]
     static HashMap<String, Servlet> srvMap = new HashMap<String, Servlet>(){{
         put("/hello", new HelloServlet());
+        put("/calendar", new CalendarServlet());
+        put("/overview", new CalendarServlet());
     }};
 
 
@@ -221,7 +227,13 @@ public class Main {
             }
         }
 
-        fixedHandler.setResourceBase( webroot );
+        if( webroot == null ){
+            fixedHandler.setResourceBase(
+                    res.get().url("s/").toExternalForm() );
+        }else{
+            fixedHandler.setResourceBase( webroot );
+        }
+
         fixedContext.setHandler( fixedHandler );
 
         return fixedContext;
@@ -257,7 +269,6 @@ public class Main {
 
         String[] rest = parseArgs( args );
 
-        // simple flags
         if( boolMap.get("-help") ){
             System.out.println(help); System.exit(0);
         }

@@ -16,6 +16,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import static java.lang.String.format;
+import java.io.IOException;
 
 // jetty
 import org.eclipse.jetty.util.log.Log;
@@ -26,6 +27,8 @@ import com.github.bjarneh.stal.db.DB;
 import com.github.bjarneh.stal.types.User;
 
 // libb
+import com.github.bjarneh.utilz.io;
+import com.github.bjarneh.utilz.res;
 import com.github.bjarneh.utilz.globals;
 
 
@@ -54,17 +57,23 @@ public class HsqlDB implements DB {
     }
 
 
-    private void init() throws ClassNotFoundException {
+    private void init()
+        throws ClassNotFoundException, SQLException, IOException
+    {
         // make sure driver is registered
         Class.forName(DB_DRIVER);
         // this can be set by command line arg or config
         DB_URL = globals.getStr("DB_URL");
         // log some action
         log.info(String.format("HsqlDB.init(%s, %s)", DB_DRIVER, DB_URL ));
+        // assert that the database is as expected
+        assertOk();
     }
 
 
-    public static DB getDB() throws ClassNotFoundException {
+    public static DB getDB() 
+        throws ClassNotFoundException, SQLException, IOException
+    {
         if( db == null ){
             db = new HsqlDB();
             db.init();
@@ -78,6 +87,38 @@ public class HsqlDB implements DB {
     }
 
 
+    // create tables if not already here
+
+    private void assertOk()
+        throws SQLException, IOException
+    {
+        try( Connection conn = getConn() ) {
+
+            PreparedStatement pstmt =
+                conn.prepareStatement(SQL.OUR_TABLE_NAMES);
+            ResultSet result = pstmt.executeQuery();
+
+            int tableCount = 0;
+
+            if( result.next() ){
+                tableCount = result.getInt("MYTOTAL");
+            }
+            
+            if( tableCount != 4 ){
+                String batchQ = 
+                    new String(io.wget(
+                            res.get().url("misc/sql/hour.sql")));
+                String[] q = batchQ.split("---------------------------------");
+                for(int i = 0; i < q.length; i++){
+                    conn.prepareStatement( q[i] ).executeUpdate();
+                }
+                log.info("Created missing tables");
+            } else {
+                log.info("Table structure in tact");
+            }
+        }
+    }
+ 
 
     // start User
 
@@ -102,7 +143,6 @@ public class HsqlDB implements DB {
         try(PreparedStatement pstmt =
                 conn.prepareStatement(SQL.USER_FROM_PK) )
         {
-
             pstmt.setString(1, pk);
             ResultSet result = pstmt.executeQuery();
 
@@ -130,13 +170,34 @@ public class HsqlDB implements DB {
     // end User
 
 
+
+
+
     final static class SQL {
+
+        // start misc
+
+        final static String OUR_TABLE_NAMES =
+            "  SELECT                                      "+
+            "         COUNT(*) AS MYTOTAL                  "+
+            "  FROM                                        "+
+            "         INFORMATION_SCHEMA.SYSTEM_TABLES     "+
+            "  WHERE                                       "+
+            "         TABLE_SCHEM = 'PUBLIC'               "+
+            "  AND                                         "+
+            "         TABLE_NAME IN ('JOB', 'PAY', 'DAY', 'USER')  ";
+        //TODO REMOVE USER
+
+
+        // end misc
+
+
 
         // start User
 
-        final static String USER_FROM_PK =
-            "SELECT * FROM USER WHERE ID = ? ";
+        final static String USER_FROM_PK = "SELECT * FROM USER WHERE ID = ? ";
 
         // end User
+    
     }
 }
