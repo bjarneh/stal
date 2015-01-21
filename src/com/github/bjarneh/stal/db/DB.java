@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style 
 // license that can be found in the LICENSE file. 
 
-package com.github.bjarneh.db;
+package com.github.bjarneh.stal.db;
 
 // local
 import com.github.bjarneh.stal.types.User;

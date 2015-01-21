@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style 
 // license that can be found in the LICENSE file. 
 
-package com.github.bjarneh.web.main;
+package com.github.bjarneh.stal.main;
 
 // std
 import java.util.Map;

@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style 
 // license that can be found in the LICENSE file. 
 
-package com.github.bjarneh.api;
+package com.github.bjarneh.stal.api;
 
 // local
-import com.github.bjarneh.db.DB;
-import com.github.bjarneh.db.hsql.HsqlDB;
+import com.github.bjarneh.stal.db.DB;
+import com.github.bjarneh.stal.db.hsql.HsqlDB;
 import com.github.bjarneh.stal.types.User;
 
 /**

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style 
 // license that can be found in the LICENSE file. 
 
-package com.github.bjarneh.db.hsql;
+package com.github.bjarneh.stal.db.hsql;
 
 // std
 import java.sql.Date;
@@ -22,7 +22,7 @@ import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
 // local
-import com.github.bjarneh.db.DB;
+import com.github.bjarneh.stal.db.DB;
 import com.github.bjarneh.stal.types.User;
 
 // libb
