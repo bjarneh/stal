@@ -6,6 +6,7 @@ package com.github.bjarneh.web.main;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.io.File;
 import java.io.IOException;
 import javax.servlet.Servlet;
 
@@ -72,9 +73,8 @@ public class Main {
         put("-root", ".");
         put("-port", "7676");
         put("-store", 
-                path.join(
-                    System.getProperty("user.dir"),
-                          path.fromSlash(".config/stal/db")));
+                path.join(System.getProperty("user.home"), 
+                                 path.fromSlash(".stal/db")));
     }};
 
 
@@ -268,7 +268,13 @@ public class Main {
             strMap.put("-root", rest[0]);
         }
 
+        // set dir to file store
         globals.set("DB_URL", "jdbc:hsqldb:file:"+strMap.get("-store"));
+
+        if( ! path.isDir(strMap.get("-store")) ) {
+            new File(strMap.get("-store")).mkdirs();
+            log.info("Created dir: "+strMap.get("-store"));
+        }
 
         // Initialize new server object
         Server server = new Server( Integer.parseInt(strMap.get("-port")) );

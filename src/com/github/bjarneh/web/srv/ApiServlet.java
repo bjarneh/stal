@@ -11,6 +11,10 @@ import java.util.HashSet;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+// jetty
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
+
 // servlet api
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +33,10 @@ import com.github.bjarneh.api.API;
 
 public class ApiServlet extends HttpServlet {
 
+
+    static final Logger log = Log.getLogger( ApiServlet.class );
+
+
     protected API api;
 
     static String dottedLine = 
@@ -41,6 +49,7 @@ public class ApiServlet extends HttpServlet {
         } catch ( ClassNotFoundException e ) {
             throw new ServletException( e );
         }
+        log.info("API successfully loaded.... ");
     }
 
 

@@ -14,7 +14,7 @@
 	<param name="append" value="false" />
 	<param name="maxFileSize" value="5MB" />
 	<param name="maxBackupIndex" value="5" />
-	<param name="file" value="stal.log" />
+    <param name="file" value="${user.home}/.stal/log/stal.log" />
 	<layout class="org.apache.log4j.PatternLayout">
 <!---  	  <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %c - %m%n" /> -->
 	  <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %l - %m%n" />

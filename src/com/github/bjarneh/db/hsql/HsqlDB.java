@@ -14,6 +14,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import static java.lang.String.format;
 
+// jetty
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
+
 // local
 import com.github.bjarneh.db.DB;
 
@@ -29,6 +33,7 @@ import com.github.bjarneh.utilz.globals;
 
 public class HsqlDB implements DB {
     
+    static final Logger log = Log.getLogger( HsqlDB.class );
 
     private static String DB_DRIVER = "org.hsqldb.jdbc.JDBCDriver";
     private static String DB_URL    = null;
@@ -49,7 +54,9 @@ public class HsqlDB implements DB {
         // make sure driver is registered
         Class.forName(DB_DRIVER);
         // this can be set by command line arg or config
-        DB_URL = globals.getStr("-store");
+        DB_URL = globals.getStr("DB_URL");
+        // log some action
+        log.info(String.format("HsqlDB.init(%s, %s)", DB_DRIVER, DB_URL ));
     }
 
 
@@ -65,6 +72,5 @@ public class HsqlDB implements DB {
     private Connection getConn() throws SQLException {
          return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
     }
-
 
 }
