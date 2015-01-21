@@ -4,8 +4,10 @@
 
 package com.github.bjarneh.api;
 
+// local
 import com.github.bjarneh.db.DB;
 import com.github.bjarneh.db.hsql.HsqlDB;
+import com.github.bjarneh.stal.types.User;
 
 /**
  * Singleton that wraps a DB implementation to allow injection.
@@ -38,5 +40,12 @@ public class API {
     public static API getAPI() throws ClassNotFoundException {
         return getAPI(null);
     }
+
+
+    /** Wrapper for. @link{DB#getUserFromPK} */
+    public User getUserFromPK(String pk) throws Exception {
+        return db.getUserFromPK( pk );
+    }
+
 
 }

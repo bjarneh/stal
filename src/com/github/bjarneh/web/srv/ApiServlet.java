@@ -1,4 +1,4 @@
-// Copyright 2014 bjarneh@ifi.uio.no. All rights reserved. 
+// Copyright 2015 bjarneh@ifi.uio.no. All rights reserved. 
 // Use of this source code is governed by a BSD-style 
 // license that can be found in the LICENSE file. 
 
@@ -36,11 +36,11 @@ public class ApiServlet extends HttpServlet {
 
     static final Logger log = Log.getLogger( ApiServlet.class );
 
-
     protected API api;
 
     static String dottedLine = 
         "--------------------------------------------------------------------";
+
 
     @Override
     public void init() throws ServletException {

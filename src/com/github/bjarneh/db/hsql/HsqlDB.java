@@ -1,5 +1,8 @@
-package com.github.bjarneh.db.hsql;
+// Copyright 2015 bjarneh@ifi.uio.no. All rights reserved. 
+// Use of this source code is governed by a BSD-style 
+// license that can be found in the LICENSE file. 
 
+package com.github.bjarneh.db.hsql;
 
 // std
 import java.sql.Date;
@@ -20,6 +23,7 @@ import org.eclipse.jetty.util.log.Logger;
 
 // local
 import com.github.bjarneh.db.DB;
+import com.github.bjarneh.stal.types.User;
 
 // libb
 import com.github.bjarneh.utilz.globals;
@@ -73,4 +77,66 @@ public class HsqlDB implements DB {
          return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
     }
 
+
+
+    // start User
+
+    /**
+     * {@inheritDoc}
+     */
+    public User getUserFromPK(String pk)
+        throws SQLException
+    {
+        try(Connection conn = getConn()){
+            conn.setReadOnly( true );
+            return getUserFromPK( pk, conn );
+        }
+    }
+
+
+    private User getUserFromPK(String pk, Connection conn)
+        throws SQLException
+    {
+        User user = null;
+
+        try(PreparedStatement pstmt =
+                conn.prepareStatement(SQL.USER_FROM_PK) )
+        {
+
+            pstmt.setString(1, pk);
+            ResultSet result = pstmt.executeQuery();
+
+            if( result.next() ){
+                user = fillUserFromResultset(result);
+            }
+
+        }
+
+        return user;
+    }
+
+
+    private User fillUserFromResultset(ResultSet result)
+        throws SQLException
+    {
+        User user = new User();
+        user.id   = result.getString("ID");
+        user.name = result.getString("NAME");
+        return user;
+    }
+
+
+
+    // end User
+
+
+    final static class SQL {
+
+        // start User
+
+        final static String USER_FROM_PK =
+            "SELECT * FROM USER WHERE ID = ? ";
+
+        // end User
+    }
 }
