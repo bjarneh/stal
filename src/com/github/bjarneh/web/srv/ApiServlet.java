@@ -35,8 +35,12 @@ public class ApiServlet extends HttpServlet {
         "--------------------------------------------------------------------";
 
     @Override
-    public void init(){
-        api = API.getAPI();
+    public void init() throws ServletException {
+        try {
+            api = API.getAPI();
+        } catch ( ClassNotFoundException e ) {
+            throw new ServletException( e );
+        }
     }
 
 

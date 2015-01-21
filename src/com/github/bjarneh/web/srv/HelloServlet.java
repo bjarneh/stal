@@ -31,7 +31,9 @@ public class HelloServlet extends ApiServlet {
         resp.getWriter().println("<h1>"+greeting+"</h1>");
         resp.getWriter().println("session=" + req.getSession(true).getId());
 
-        dumpParams( req, new PrintWriter(System.out, true) );
+        resp.getWriter().println("<pre>");
+        dumpParams( req, resp.getWriter() );
+        resp.getWriter().println("</pre>");
     }
 
 }

@@ -5,6 +5,7 @@
 package com.github.bjarneh.api;
 
 import com.github.bjarneh.db.DB;
+import com.github.bjarneh.db.hsql.HsqlDB;
 
 /**
  * Singleton that wraps a DB implementation to allow injection.
@@ -15,16 +16,27 @@ import com.github.bjarneh.db.DB;
 
 public class API {
 
+
     private static DB db = null;
     private static API api = null;
 
+
     private API(){}
 
-    public static API getAPI() {
+
+    public static API getAPI(DB impl) throws ClassNotFoundException {
         if( api == null ){
             api = new API();
+            if( impl == null ){
+                api.db = HsqlDB.getDB();
+            }
         }
         return api;
+    }
+
+
+    public static API getAPI() throws ClassNotFoundException {
+        return getAPI(null);
     }
 
 }

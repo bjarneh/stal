@@ -18,6 +18,9 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
+
 
 // libb
 import com.github.bjarneh.utilz.io;
@@ -36,6 +39,10 @@ import com.github.bjarneh.web.srv.HelloServlet;
  */
 
 public class Main {
+
+
+    final static Logger log = Log.getLogger(Main.class);
+
 
     // immutable
     final static String version = "stal v1.0";
@@ -162,7 +169,6 @@ public class Main {
     static String[] argsFromConfig( String fname )
         throws IOException
     {
-
         byte[] raw = io.raw( fname );
 
         if( raw != null && raw.length > 0 ){
@@ -263,11 +269,6 @@ public class Main {
         }
 
         globals.set("DB_URL", "jdbc:hsqldb:file:"+strMap.get("-store"));
-
-        System.out.printf(" globals.getStr('DB_URL') = %s\n",
-                globals.getStr("DB_URL"));
-
-        //System.out.printf("%s\n", strMap.get("-store"));
 
         // Initialize new server object
         Server server = new Server( Integer.parseInt(strMap.get("-port")) );
