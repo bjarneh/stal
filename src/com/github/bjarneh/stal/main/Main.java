@@ -34,6 +34,7 @@ import com.github.bjarneh.parse.options.Getopt;
 
 // local
 import com.github.bjarneh.web.srv.HelloServlet;
+import com.github.bjarneh.web.srv.CompanyServlet;
 import com.github.bjarneh.web.srv.CalendarServlet;
 import com.github.bjarneh.web.srv.OverviewServlet;
 
@@ -98,7 +99,8 @@ public class Main {
     static HashMap<String, Servlet> srvMap = new HashMap<String, Servlet>(){{
         put("/hello", new HelloServlet());
         put("/calendar", new CalendarServlet());
-        put("/overview", new CalendarServlet());
+        put("/overview", new OverviewServlet());
+        put("/company", new CompanyServlet());
     }};
 
 

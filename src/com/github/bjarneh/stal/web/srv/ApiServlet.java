@@ -49,7 +49,6 @@ public class ApiServlet extends HttpServlet {
         } catch ( Exception e ) {
             throw new ServletException( e );
         }
-        log.info("API.init called again...");
     }
 
 
