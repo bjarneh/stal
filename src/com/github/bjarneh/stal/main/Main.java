@@ -260,6 +260,11 @@ public class Main {
     }
 
 
+    private static Handler getJspHandler() {
+
+    }
+
+
     /**
      * Entry point, parse config + arguments and start up server.
      * @param args command line arguments
