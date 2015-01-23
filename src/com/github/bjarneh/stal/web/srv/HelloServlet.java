@@ -35,26 +35,27 @@ public class HelloServlet extends ApiServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
         throws ServletException, IOException
     {
-        PrintWriter writer = resp.getWriter();
-        //req.getRequestDispatcher("mikk.html").forward(req, resp); 
-        resp.setContentType("text/html");
-        resp.setStatus(HttpServletResponse.SC_OK);
-        writer.println("<h1>"+greeting+"</h1>");
-        writer.println("session=" + req.getSession(true).getId());
-
-        dumpParams( req, new PrintWriter(System.out, true) );
-
-        if( req.getParameter("u") != null ){
-            User u = getUserFromParams( req );
-            if( u != null ){
-                writer.println("<dl>");
-                writer.println(" <dt> Id </dt>");
-                writer.println(" <dd> "+ u.id +"</dd>");
-                writer.println(" <dt> Name </dt>");
-                writer.println(" <dd> "+ u.name +" </dd>");
-                writer.println("</dl>");
-            }
-        }
+///         PrintWriter writer = resp.getWriter();
+        req.setAttribute("kuk", "tralala");
+        req.getRequestDispatcher("jsps/test.jsp").forward(req, resp); 
+///         resp.setContentType("text/html");
+///         resp.setStatus(HttpServletResponse.SC_OK);
+///         writer.println("<h1>"+greeting+"</h1>");
+///         writer.println("session=" + req.getSession(true).getId());
+/// 
+///         dumpParams( req, new PrintWriter(System.out, true) );
+/// 
+///         if( req.getParameter("u") != null ){
+///             User u = getUserFromParams( req );
+///             if( u != null ){
+///                 writer.println("<dl>");
+///                 writer.println(" <dt> Id </dt>");
+///                 writer.println(" <dd> "+ u.id +"</dd>");
+///                 writer.println(" <dt> Name </dt>");
+///                 writer.println(" <dd> "+ u.name +" </dd>");
+///                 writer.println("</dl>");
+///             }
+///         }
     }
 
 

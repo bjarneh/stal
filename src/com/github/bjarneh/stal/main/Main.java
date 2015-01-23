@@ -7,9 +7,12 @@ package com.github.bjarneh.stal.main;
 // std
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import javax.servlet.Servlet;
 
 // jetty
@@ -23,7 +26,16 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
+import org.eclipse.jetty.plus.annotation.ContainerInitializer;
+import org.eclipse.jetty.annotations.ServletContainerInitializersStarter;
+import org.eclipse.jetty.jsp.JettyJspServlet;
 
+
+// apache
+import org.apache.tomcat.InstanceManager;
+import org.apache.tomcat.SimpleInstanceManager;
 
 // libb
 import com.github.bjarneh.utilz.io;
@@ -65,6 +77,8 @@ public class Main {
         "  -h  --help    : print this menu and exit                 \n"+
         "  -v  --version : print version and exit                   \n"+
         "  -s  --store   : store [default:$HOME/.stal/store/db]     \n"+
+        "  -t  --tmp     : jsp compile dir [default:/tmp/stal/jsp]  \n"+
+        "  -j  --jvm     : jsp jvm compile/target [default:1.7]     \n"+
         "  -r  --root    : set webroot [default:built-in]           \n"+
         "  -p  --port    : set port number [default:7676]           \n";
 
@@ -79,6 +93,10 @@ public class Main {
     static HashMap<String, String> strMap = new HashMap<String, String>(){{
         put("-root", null);
         put("-port", "7676");
+        put("-jvm", "1.7");
+        put("-tmp", 
+                path.join(System.getProperty("java.io.tmpdir"), 
+                                 path.fromSlash("stal/jsp")));
         put("-store", 
                 path.join(System.getProperty("user.home"), 
                                  path.fromSlash(".stal/store/db")));
@@ -115,6 +133,8 @@ public class Main {
         getopt.addBoolOption("-h -help --help help");
         getopt.addBoolOption("-v -version --version");
         getopt.addFancyStrOption("-s --store");
+        getopt.addFancyStrOption("-t --tmp");
+        getopt.addFancyStrOption("-j --jvm");
         getopt.addFancyStrOption("-r --root");
         getopt.addFancyStrOption("-p --port");
 
@@ -243,26 +263,99 @@ public class Main {
     }
 
 
-    private static Handler getDynamicHandler(
-            String path, boolean trackSessions ) 
-    {
-        int tracker = trackSessions? ServletContextHandler.SESSIONS :
-                                     ServletContextHandler.NO_SESSIONS;
+///     private static Handler getDynamicHandler(
+///             String path, boolean trackSessions ) 
+///     {
+///         int tracker = trackSessions? ServletContextHandler.SESSIONS :
+///                                      ServletContextHandler.NO_SESSIONS;
+/// 
+///         ServletContextHandler dynCtx = new ServletContextHandler( tracker );
+///         dynCtx.setContextPath( path );
+/// 
+///         for(String k: srvMap.keySet()){
+///             dynCtx.addServlet( new ServletHolder(srvMap.get(k)), k);
+///         }
+/// 
+///         return dynCtx;
+///     }
 
-        ServletContextHandler dynCtx = new ServletContextHandler( tracker );
+
+    /**
+     * WUT 1: Ensure the jsp engine is initialized correctly.
+     */
+    private static ArrayList<ContainerInitializer> jspInitializers() {
+
+        JettyJasperInitializer sci       = new JettyJasperInitializer();
+        ContainerInitializer initializer = new ContainerInitializer(sci, null);
+
+        ArrayList<ContainerInitializer> initializers = 
+            new ArrayList<ContainerInitializer>();
+        initializers.add(initializer);
+
+        return initializers;
+
+    }
+
+    
+    /**
+     * WUT 2: Create JSP Servlet (must be named "jsp").
+     */
+    private static ServletHolder jspServletHolder() {
+
+        ServletHolder jspHolder = 
+            new ServletHolder("jsp", JettyJspServlet.class);
+
+        jspHolder.setInitOrder(0);
+        jspHolder.setInitParameter("logVerbosityLevel", "DEBUG");
+        jspHolder.setInitParameter("fork", "false");
+        jspHolder.setInitParameter("xpoweredBy", "false");
+        jspHolder.setInitParameter("compilerTargetVM", strMap.get("-jvm"));
+        jspHolder.setInitParameter("compilerSourceVM", strMap.get("-jvm"));
+        jspHolder.setInitParameter("keepgenerated", "true");
+
+        return jspHolder;
+
+    }
+
+
+    private static Handler getDynamicHandler( String path, String tmpDir )  {
+
+        WebAppContext dynCtx = new WebAppContext();
         dynCtx.setContextPath( path );
 
+        dynCtx.setAttribute("javax.servlet.context.tempdir", new File(tmpDir));
+
+        // WUT 3
+        dynCtx.setAttribute(
+                "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
+                ".*/[^/]*servlet-api-[^/]*\\.jar$|"+
+                ".*/javax.servlet.jsp.jstl-.*\\.jar$|"+
+                ".*/.*taglibs.*\\.jar$");
+        // WUT 4
+        dynCtx.setAttribute(
+                "org.eclipse.jetty.containerInitializers", jspInitializers());
+        // WUT 4
+        dynCtx.setAttribute(InstanceManager.class.getName(), 
+                            new SimpleInstanceManager());
+        // WUT 5
+        dynCtx.addBean(new ServletContainerInitializersStarter(dynCtx), true);
+        // WUT 6
+        dynCtx.setClassLoader(new URLClassLoader(
+                    new URL[0], new Main().getClass().getClassLoader()));
+
+        dynCtx.addServlet(jspServletHolder(), "*.jsp");
+
+        // Add mapping to servlets from map
         for(String k: srvMap.keySet()){
             dynCtx.addServlet( new ServletHolder(srvMap.get(k)), k);
         }
 
+
+        dynCtx.setResourceBase( res.get().url("tpl/").toExternalForm() );
+
         return dynCtx;
     }
 
-
-    private static Handler getJspHandler() {
-
-    }
 
 
     /**
@@ -302,7 +395,7 @@ public class Main {
         // Static content.
         Handler fixedHandler = getFixedHandler("/", true, strMap.get("-root"));
         // Dynamic content
-        Handler dynamicHandler = getDynamicHandler("/d", true);
+        Handler dynamicHandler = getDynamicHandler("/d", strMap.get("-tmp"));
 
         ContextHandlerCollection contexts = new ContextHandlerCollection();
         contexts.setHandlers(new Handler[] { dynamicHandler, fixedHandler });
