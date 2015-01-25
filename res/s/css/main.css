@@ -1,9 +1,11 @@
 @import url(http://fonts.googleapis.com/css?family=Ubuntu);
 
-body {
+html {
     color: #ffffff;
     background-color: #150517;
+    font-size: 16px;
 }
+
 
 * {
     padding:0px;
@@ -14,7 +16,12 @@ body {
     -webkit-border-radius: 0px;
     -ie-border-radius: 0px;
     font-family: 'Ubuntu', Serif;
-    font-size: 16px;
+}
+
+
+h2 {
+    font-size: 31px;
+    padding: 15px 0px 0px 15px;
 }
 
 
@@ -88,6 +95,7 @@ div.wrapper {
 }
 
 div.leftpane {
+    padding-left: 10px;
     float: left;
 }
 
@@ -149,10 +157,6 @@ table.month a:hover {
     background-color: #333333; /* dark grey */
 }
 
-table.timesheet {
-    margin-top: 35px;
-}
-
 table.timesheet td {
     /* dark grey */
     border: 1px solid #333333;
@@ -178,6 +182,7 @@ table.timesheet textarea {
 
 table.overview {
     font-size: 14px;
+    margin-left: 15px;
 }
 
 table.overview td {
@@ -228,6 +233,7 @@ div.companyleft {
 table.companies a {
     text-decoration: none;
     display: block;
+    margin-left: 10px;
     padding: 5px;
 }
 
