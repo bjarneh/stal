@@ -2,8 +2,10 @@
 
 JZ=jz
 
-
 build:
+	@$(JZ)
+
+stal:
 	@$(JZ) -0 -o stal
 
 pack:

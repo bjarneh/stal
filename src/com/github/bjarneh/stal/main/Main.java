@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import javax.servlet.Servlet;
@@ -323,7 +324,7 @@ public class Main {
     /**
      * WUT: Create Default Servlet (must be named "default")
      */
-    private ServletHolder defaultServletHolder(URI baseUri) {
+    private static ServletHolder defaultServletHolder(URI baseUri) {
 
         ServletHolder holderDefault = 
             new ServletHolder("default", DefaultServlet.class);
@@ -338,12 +339,12 @@ public class Main {
 
 
     private static Handler getDynamicHandler( String path, String tmpDir )
-        throws IOException
+        throws IOException, URISyntaxException
     {
-
         WebAppContext dynCtx = new WebAppContext();
-        dynCtx.setContextPath( path );
 
+        dynCtx.setContextPath( path );
+        dynCtx.setResourceBase( res.get().url("tpl/").toExternalForm() );
         dynCtx.setAttribute("javax.servlet.context.tempdir", new File(tmpDir));
 
         // WUT 3
@@ -353,40 +354,47 @@ public class Main {
                 ".*/javax.servlet.jsp.jstl-.*\\.jar$|"+
                 ".*/.*taglibs.*\\.jar$");
 
+///         // WUT 3
+///         dynCtx.setAttribute(
+///                 "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
+///                 ".*/stal$");
+
         // WUT 4
         dynCtx.setAttribute(
             "org.eclipse.jetty.containerInitializers", jspInitializers());
-        // WUT 4
+        // WUT 5
         dynCtx.setAttribute(InstanceManager.class.getName(), 
                             new SimpleInstanceManager());
-        // WUT 5
+        // WUT 6
         dynCtx.addBean(new ServletContainerInitializersStarter(dynCtx), true);
 
-        // WUT 6 DOES NOT WORK
+        // WUT 7 DOES NOT WORK
         ClassLoader jspClassLoader = 
             new URLClassLoader(new URL[0], 
                     new Main().getClass().getClassLoader());
 
         dynCtx.setClassLoader( jspClassLoader );
 
-///         // WUT 7 DOES NOT WORK
+///         // WUT 8 DOES NOT WORK
 ///         dynCtx.setClassLoader(
 ///                 new WebAppClassLoader(
 ///                     new Main().getClass().getClassLoader(), dynCtx));
 
 
-        log.info(" 1 "+dynCtx.getClassPath());
-        log.info(" 2 "+dynCtx.getContextPath());
-        log.info(" 3 "+ new Main().getClass().getClassLoader());
+        log.info(" 1 "+ dynCtx.getClassPath());
+        log.info(" 2 "+ dynCtx.getContextPath());
+        log.info(" 3 "+ dynCtx.getClassLoader());
+        log.info(" 4 "+ new Main().getClass().getClassLoader());
 
         dynCtx.addServlet(jspServletHolder(), "*.jsp");
+
+///         dynCtx.addServlet(defaultServletHolder(
+///             res.get().url("tpl/").toURI()), "/");
 
         // Add mapping to servlets from map
         for(String k: srvMap.keySet()){
             dynCtx.addServlet( new ServletHolder(srvMap.get(k)), k);
         }
-
-        dynCtx.setResourceBase( res.get().url("tpl/").toExternalForm() );
 
         return dynCtx;
     }
@@ -434,7 +442,7 @@ public class Main {
 
         ContextHandlerCollection contexts = new ContextHandlerCollection();
         contexts.setHandlers(new Handler[] { dynamicHandler, fixedHandler });
-
+ 
         server.setHandler( contexts );
 
         server.start();
