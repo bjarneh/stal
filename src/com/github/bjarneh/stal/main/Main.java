@@ -64,11 +64,11 @@ import com.github.bjarneh.web.srv.OverviewServlet;
 
 public class Main {
 
-
     final static Logger log = Log.getLogger(Main.class);
 
+    // If we cannot find this, we must manipulate ClassLoader
+    final static String handyClass = "com.github.bjarneh.utilz.handy";
 
-    // immutable
     final static String version = "stal v1.0";
 
     final static String help = 
@@ -128,6 +128,21 @@ public class Main {
 
     // command line parser [ not actual GNU-getopt ]
     static Getopt getopt = null;
+
+
+
+    // where to look for JSP libraries, we are usually self-contained
+    static String packedRegex = ".*stal($|\\.jar$)";
+
+    // all dependencies could be given as classpath arguments on startup
+    static String fancyRexex = 
+                ".*/[^/]*servlet-api-[^/]*\\.jar$|"+
+                ".*/javax.servlet.jsp.jstl-.*\\.jar$|"+
+                ".*/.*taglibs.*\\.jar$";
+
+    // this is the default, @see fixClassLoaderIssue
+    static String jarRegex = packedRegex;
+
 
 
     static void initParser() {
@@ -321,6 +336,7 @@ public class Main {
 
     }
 
+
     /**
      * WUT: Create Default Servlet (must be named "default")
      */
@@ -339,7 +355,7 @@ public class Main {
 
 
     private static Handler getDynamicHandler( String path, String tmpDir )
-        throws IOException, URISyntaxException
+        throws IOException, URISyntaxException, ClassNotFoundException
     {
         WebAppContext dynCtx = new WebAppContext();
 
@@ -359,6 +375,17 @@ public class Main {
 ///                 "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
 ///                 ".*/stal$");
 
+///         // WUT 3
+///         dynCtx.setAttribute(
+///                 "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
+///                 "lib\\/javax.servlet.jsp.jstl-.*\\.jar$|"+
+///                 "lib\\/taglibs.*\\.jar$|"+
+///                 "lib\\/[^/]*servlet-api-[^/]*\\.jar$");
+        
+        System.out.printf(" cp: %s\n", System.getProperty("java.class.path"));
+        System.out.printf(" tc: %s\n",Thread.currentThread().getContextClassLoader());
+
+
         // WUT 4
         dynCtx.setAttribute(
             "org.eclipse.jetty.containerInitializers", jspInitializers());
@@ -369,11 +396,23 @@ public class Main {
         dynCtx.addBean(new ServletContainerInitializersStarter(dynCtx), true);
 
         // WUT 7 DOES NOT WORK
-        ClassLoader jspClassLoader = 
+        URLClassLoader jspClassLoader = 
             new URLClassLoader(new URL[0], 
-                    new Main().getClass().getClassLoader());
+///                     new Main().getClass().getClassLoader());
+                       ClassLoader.getSystemClassLoader());
+
+
+        for( URL u: jspClassLoader.getURLs() ){
+            System.out.printf(" u4: %s\n", u);
+        }
+
+        System.out.println(" jspClassLoader: "+ jspClassLoader.getURLs());
+        System.out.printf(" jspClassLoader.len: %s\n",
+                jspClassLoader.getURLs().length);
 
         dynCtx.setClassLoader( jspClassLoader );
+
+        fixClassLoaderIssue();
 
 ///         // WUT 8 DOES NOT WORK
 ///         dynCtx.setClassLoader(
@@ -399,6 +438,60 @@ public class Main {
         return dynCtx;
     }
 
+
+    // 1. Find handyClass, or give up.
+    // 2. If we only have 1 URL in the class-path we investigate MANIFEST
+    //    to find new URLs to add to class-loader.
+    // 3. If we have many URLs in the class-path we should update the
+    //    ContainerIncludeJarPattern to reflect this
+    private static ClassLoader fixClassLoaderIssue() 
+        throws ClassNotFoundException
+    {
+
+        Class clazz;
+        ClassLoader classLoader = new Main().getClass().getClassLoader();
+
+        if( classLoader instanceof URLClassLoader ){
+
+            URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
+
+            System.out.printf(" urlClassLoader.getURLs().length = %s\n",
+                    urlClassLoader.getURLs().length);
+
+            // this will fail if libraries are not located as expected
+            urlClassLoader.loadClass( handyClass );
+
+            // we are ok, jars are given as command line arguments
+            if( urlClassLoader.getURLs().length > 1 ){
+                return urlClassLoader;
+            }else{
+                log.info("ADD THE MANIFEST STUFF");
+            }
+
+        }
+
+        return classLoader;
+
+
+///         for(URL u: 
+///                 ((URLClassLoader) Thread.currentThread().getContextClassLoader()).getURLs()) 
+///         {
+///             System.out.printf(" u : %s\n", u);
+///         }
+/// 
+///         for(URL u: 
+///                 ((URLClassLoader) new Main().getClass().getClassLoader()).getURLs()) 
+///         {
+///             System.out.printf(" u2: %s\n", u);
+///         }
+/// 
+///         for(URL u: 
+///                 ((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs()) 
+///         {
+///             System.out.printf(" u3: %s\n", u);
+///         }
+
+    }
 
 
     /**

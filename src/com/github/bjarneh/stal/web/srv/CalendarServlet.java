@@ -336,7 +336,7 @@ public class CalendarServlet extends ApiServlet {
             }
         }
 
-        System.out.printf(" %s\n", jobs);
+        //System.out.printf(" %s\n", jobs);
 
         Calendar calendar = getCalendar(req);
         //System.out.printf(" time: %s\n", calendar.getTime());
