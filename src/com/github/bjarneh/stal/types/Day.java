@@ -10,6 +10,12 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+// json
+import javax.json.Json;
+import javax.json.JsonStructure;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+
 // local
 import com.github.bjarneh.hour.util.htm;
 
@@ -46,6 +52,13 @@ public class Day{
     }
 
 
+    public static Day fromDate(Date date){
+        Day day = new Day(); 
+        day.id  = date;
+        return day;
+    }
+
+
     public htm.Node getHtml(){
 
         htm.Node table = htm.table()
@@ -59,6 +72,26 @@ public class Day{
         }
         // blank row should always be displayed
         Job.addBlankRows(table);
+
         return table;
+
     }
+
+
+    public JsonStructure toJson(){
+
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add("id", id.getTime());
+
+        if( jobs != null && jobs.size() > 0 ){
+            JsonArrayBuilder listBuilder = Json.createArrayBuilder();
+            for(Job j: jobs){
+                listBuilder.add( j.toJson() );
+            }
+            builder.add("jobs", listBuilder);
+        }
+
+        return builder.build();
+    }
+
 }

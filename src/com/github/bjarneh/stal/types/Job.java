@@ -13,6 +13,10 @@ import static java.lang.String.format;
 // local
 import com.github.bjarneh.hour.util.htm;
 
+// json
+import javax.json.Json;
+import javax.json.JsonStructure;
+
 /**
  * Represents a row on the job table.
  *
@@ -142,6 +146,25 @@ public class Job {
                             (used/HOUR_MILLIS), minutesOk));
             }
         }
+    }
+
+
+    public JsonStructure toJson(){
+        return Json.createObjectBuilder()
+                   .add("id", id)
+                   .add("dayId", dayId.getTime())
+                   .add("company", company)
+                   .add("start", start.getTime())
+                   .add("stop", stop.getTime())
+                   .add("total", total)
+                   .add("what", what)
+                   .build();
+    }
+
+
+    @Override
+    public String toString(){
+        return toJson().toString();
     }
 
 }

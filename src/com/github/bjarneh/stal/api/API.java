@@ -145,7 +145,7 @@ public class API {
      * Wrapper for {@link #DB.getJobFromPK}
      */
     public Job getJobFromPK(long id) throws Exception {
-        return getJobFromPK(id);
+        return db.getJobFromPK(id);
     }
 
     /**

@@ -54,7 +54,7 @@ import com.github.bjarneh.web.srv.HelloServlet;
 import com.github.bjarneh.web.srv.CompanyServlet;
 import com.github.bjarneh.web.srv.CalendarServlet;
 import com.github.bjarneh.web.srv.OverviewServlet;
-
+import com.github.bjarneh.web.rest.JobServlet;
 
 /**
  * Entry point for the embedded Jetty web-app.
@@ -120,10 +120,13 @@ public class Main {
     // Servlets
     // PATH => Servlet [without the d, i.e. d/hello => hello servlet]
     static HashMap<String, Servlet> srvMap = new HashMap<String, Servlet>(){{
+        // GUI
         put("/hello", new HelloServlet());
         put("/calendar", new CalendarServlet());
         put("/overview", new OverviewServlet());
         put("/company", new CompanyServlet());
+        // REST API
+        put("/rest/job", new JobServlet());
     }};
 
 
@@ -141,7 +144,7 @@ public class Main {
                 ".*/javax.servlet.jsp.jstl-.*\\.jar$|"+
                 ".*/.*taglibs.*\\.jar$";
 
-    // this is the default, @see getFixedClassLoader
+    // this is the default, @see getWorkingClassLoader
     static String jarRegex = packedRegex;
 
 
@@ -321,7 +324,7 @@ public class Main {
 
 
     /**
-     * WUT: Create Default Servlet (must be named "default").
+     * WUT 3: Create Default Servlet (must be named "default").
      *
      * TODO FIXME use this or ResourceHandler, i.e. this default
      * servlet can be used to serve static content, and can also
@@ -340,53 +343,12 @@ public class Main {
     }
 
 
-    private static Handler getDynamicHandler( String path, String tmpDir )
-        throws IOException, URISyntaxException, ClassNotFoundException
-    {
-        WebAppContext dynCtx = new WebAppContext();
-
-        dynCtx.setContextPath( path );
-        dynCtx.setResourceBase( res.get().url("tpl/").toExternalForm() );
-        dynCtx.setAttribute("javax.servlet.context.tempdir", new File(tmpDir));
-
-        // WUT 4
-        dynCtx.setAttribute(
-            "org.eclipse.jetty.containerInitializers", jspInitializers());
-        // WUT 5
-        dynCtx.setAttribute(InstanceManager.class.getName(), 
-                            new SimpleInstanceManager());
-        // WUT 6
-        dynCtx.addBean(new ServletContainerInitializersStarter(dynCtx), true);
-
-        // WUT 7 
-        dynCtx.setClassLoader(
-                new WebAppClassLoader(
-                    getFixedClassLoader(), dynCtx));
-
-        // NOTE: jarRegex should be correct after getFixedClassLoader has run
-        dynCtx.setAttribute(
-                "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
-                jarRegex );
-
-        log.info( "jarRegex: "+ jarRegex );
-
-        dynCtx.addServlet(jspServletHolder(), "*.jsp");
-
-        // Add mapping to servlets from map
-        for(String k: srvMap.keySet()){
-            dynCtx.addServlet( new ServletHolder(srvMap.get(k)), k);
-        }
-
-        return dynCtx;
-    }
-
-
     // 1. Find handyClass, or give up.
     // 2. If we only have 1 URL in the class-path we investigate MANIFEST
     //    to find new URLs to add to class-loader.
     // 3. If we have many URLs in the class-path we should update the
-    //    ContainerIncludeJarPattern to reflect this
-    private static ClassLoader getFixedClassLoader() 
+    //    ContainerIncludeJarPattern to reflect this (fancyRexex).
+    private static ClassLoader getWorkingClassLoader() 
         throws ClassNotFoundException, IOException
     {
 
@@ -436,6 +398,48 @@ public class Main {
         }
 
         return classLoader;
+    }
+
+
+    private static Handler getDynamicHandler( String path, String tmpDir )
+        throws IOException, URISyntaxException, ClassNotFoundException
+    {
+        WebAppContext dynCtx = new WebAppContext();
+
+        dynCtx.setContextPath( path );
+        dynCtx.setResourceBase( res.get().url("tpl/").toExternalForm() );
+        dynCtx.setAttribute("javax.servlet.context.tempdir", new File(tmpDir));
+
+        // WUT 4
+        dynCtx.setAttribute(
+            "org.eclipse.jetty.containerInitializers", jspInitializers());
+        // WUT 5
+        dynCtx.setAttribute(InstanceManager.class.getName(), 
+                            new SimpleInstanceManager());
+        // WUT 6
+        dynCtx.addBean(new ServletContainerInitializersStarter(dynCtx), true);
+
+        // WUT 7 
+        dynCtx.setClassLoader(
+                new WebAppClassLoader(
+                    getWorkingClassLoader(), dynCtx));
+
+        // NOTE: jarRegex is updated by getWorkingClassLoader,
+        //       i.e. this has to be called after getWorkingClassLoader
+        dynCtx.setAttribute(
+                "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
+                jarRegex );
+
+        log.info( "jarRegex: "+ jarRegex );
+
+        dynCtx.addServlet(jspServletHolder(), "*.jsp");
+
+        // Add mapping to servlets from map
+        for(String k: srvMap.keySet()){
+            dynCtx.addServlet( new ServletHolder(srvMap.get(k)), k );
+        }
+
+        return dynCtx;
     }
 
 

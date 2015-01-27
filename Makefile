@@ -2,10 +2,10 @@
 
 JZ=jz
 
-build:
+build: $(shell find src -type f)
 	@$(JZ)
 
-stal:
+stal: $(shell find src -type f)
 	@$(JZ) -0 -o stal
 
 pack:
