@@ -16,6 +16,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import javax.servlet.Servlet;
+import java.util.jar.Manifest;
+import java.util.jar.Attributes;
 
 // jetty
 import org.eclipse.jetty.server.Server;
@@ -35,7 +37,6 @@ import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.plus.annotation.ContainerInitializer;
 import org.eclipse.jetty.annotations.ServletContainerInitializersStarter;
 import org.eclipse.jetty.jsp.JettyJspServlet;
-
 
 // apache
 import org.apache.tomcat.InstanceManager;
@@ -132,7 +133,7 @@ public class Main {
 
 
     // where to look for JSP libraries, we are usually self-contained
-    static String packedRegex = ".*stal($|\\.jar$)";
+    static String packedRegex = ".*stal$";
 
     // all dependencies could be given as classpath arguments on startup
     static String fancyRexex = 
@@ -140,9 +141,8 @@ public class Main {
                 ".*/javax.servlet.jsp.jstl-.*\\.jar$|"+
                 ".*/.*taglibs.*\\.jar$";
 
-    // this is the default, @see fixClassLoaderIssue
+    // this is the default, @see getFixedClassLoader
     static String jarRegex = packedRegex;
-
 
 
     static void initParser() {
@@ -282,23 +282,6 @@ public class Main {
     }
 
 
-///     private static Handler getDynamicHandler(
-///             String path, boolean trackSessions ) 
-///     {
-///         int tracker = trackSessions? ServletContextHandler.SESSIONS :
-///                                      ServletContextHandler.NO_SESSIONS;
-/// 
-///         ServletContextHandler dynCtx = new ServletContextHandler( tracker );
-///         dynCtx.setContextPath( path );
-/// 
-///         for(String k: srvMap.keySet()){
-///             dynCtx.addServlet( new ServletHolder(srvMap.get(k)), k);
-///         }
-/// 
-///         return dynCtx;
-///     }
-
-
     /**
      * WUT 1: Ensure the jsp engine is initialized correctly.
      */
@@ -338,7 +321,11 @@ public class Main {
 
 
     /**
-     * WUT: Create Default Servlet (must be named "default")
+     * WUT: Create Default Servlet (must be named "default").
+     *
+     * TODO FIXME use this or ResourceHandler, i.e. this default
+     * servlet can be used to serve static content, and can also
+     * be used with filters, i.e. ResourceHandler cannot be filtered.
      */
     private static ServletHolder defaultServletHolder(URI baseUri) {
 
@@ -353,7 +340,6 @@ public class Main {
     }
 
 
-
     private static Handler getDynamicHandler( String path, String tmpDir )
         throws IOException, URISyntaxException, ClassNotFoundException
     {
@@ -362,29 +348,6 @@ public class Main {
         dynCtx.setContextPath( path );
         dynCtx.setResourceBase( res.get().url("tpl/").toExternalForm() );
         dynCtx.setAttribute("javax.servlet.context.tempdir", new File(tmpDir));
-
-        // WUT 3
-        dynCtx.setAttribute(
-                "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
-                ".*/[^/]*servlet-api-[^/]*\\.jar$|"+
-                ".*/javax.servlet.jsp.jstl-.*\\.jar$|"+
-                ".*/.*taglibs.*\\.jar$");
-
-///         // WUT 3
-///         dynCtx.setAttribute(
-///                 "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
-///                 ".*/stal$");
-
-///         // WUT 3
-///         dynCtx.setAttribute(
-///                 "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
-///                 "lib\\/javax.servlet.jsp.jstl-.*\\.jar$|"+
-///                 "lib\\/taglibs.*\\.jar$|"+
-///                 "lib\\/[^/]*servlet-api-[^/]*\\.jar$");
-        
-        System.out.printf(" cp: %s\n", System.getProperty("java.class.path"));
-        System.out.printf(" tc: %s\n",Thread.currentThread().getContextClassLoader());
-
 
         // WUT 4
         dynCtx.setAttribute(
@@ -395,40 +358,19 @@ public class Main {
         // WUT 6
         dynCtx.addBean(new ServletContainerInitializersStarter(dynCtx), true);
 
-        // WUT 7 DOES NOT WORK
-        URLClassLoader jspClassLoader = 
-            new URLClassLoader(new URL[0], 
-///                     new Main().getClass().getClassLoader());
-                       ClassLoader.getSystemClassLoader());
+        // WUT 7 
+        dynCtx.setClassLoader(
+                new WebAppClassLoader(
+                    getFixedClassLoader(), dynCtx));
 
+        // NOTE: jarRegex should be correct after getFixedClassLoader has run
+        dynCtx.setAttribute(
+                "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
+                jarRegex );
 
-        for( URL u: jspClassLoader.getURLs() ){
-            System.out.printf(" u4: %s\n", u);
-        }
-
-        System.out.println(" jspClassLoader: "+ jspClassLoader.getURLs());
-        System.out.printf(" jspClassLoader.len: %s\n",
-                jspClassLoader.getURLs().length);
-
-        dynCtx.setClassLoader( jspClassLoader );
-
-        fixClassLoaderIssue();
-
-///         // WUT 8 DOES NOT WORK
-///         dynCtx.setClassLoader(
-///                 new WebAppClassLoader(
-///                     new Main().getClass().getClassLoader(), dynCtx));
-
-
-        log.info(" 1 "+ dynCtx.getClassPath());
-        log.info(" 2 "+ dynCtx.getContextPath());
-        log.info(" 3 "+ dynCtx.getClassLoader());
-        log.info(" 4 "+ new Main().getClass().getClassLoader());
+        log.info( "jarRegex: "+ jarRegex );
 
         dynCtx.addServlet(jspServletHolder(), "*.jsp");
-
-///         dynCtx.addServlet(defaultServletHolder(
-///             res.get().url("tpl/").toURI()), "/");
 
         // Add mapping to servlets from map
         for(String k: srvMap.keySet()){
@@ -444,8 +386,8 @@ public class Main {
     //    to find new URLs to add to class-loader.
     // 3. If we have many URLs in the class-path we should update the
     //    ContainerIncludeJarPattern to reflect this
-    private static ClassLoader fixClassLoaderIssue() 
-        throws ClassNotFoundException
+    private static ClassLoader getFixedClassLoader() 
+        throws ClassNotFoundException, IOException
     {
 
         Class clazz;
@@ -455,42 +397,45 @@ public class Main {
 
             URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
 
-            System.out.printf(" urlClassLoader.getURLs().length = %s\n",
-                    urlClassLoader.getURLs().length);
-
-            // this will fail if libraries are not located as expected
+            // this will fail if libraries are not located
             urlClassLoader.loadClass( handyClass );
 
             // we are ok, jars are given as command line arguments
             if( urlClassLoader.getURLs().length > 1 ){
-                return urlClassLoader;
-            }else{
-                log.info("ADD THE MANIFEST STUFF");
-            }
 
+                jarRegex = fancyRexex;
+                return urlClassLoader;
+
+            }else{
+
+                URL url = res.get().url(path.join("META-INF","MANIFEST.MF"));
+                Manifest manifest = new Manifest(url.openStream());
+
+                Attributes attributes = manifest.getMainAttributes();
+                String classPath = attributes.getValue("Class-Path");
+
+                if( classPath != null && classPath.length() > 0 ){
+
+                    String[] classPaths = classPath.split("\\s+");
+
+                    if( classPaths.length > 0 ){
+
+                        URL[] urls = new URL[ classPaths.length ];
+
+                        for(int i = 0; i < classPaths.length; i++){
+                            urls[i] = new URL( "file:"+ classPaths[i] );
+                        }
+
+                        log.info("Manifest Class-Path added!");
+
+                        jarRegex = fancyRexex;
+                        return new URLClassLoader(urls, classLoader); 
+                    }
+                }
+            }
         }
 
         return classLoader;
-
-
-///         for(URL u: 
-///                 ((URLClassLoader) Thread.currentThread().getContextClassLoader()).getURLs()) 
-///         {
-///             System.out.printf(" u : %s\n", u);
-///         }
-/// 
-///         for(URL u: 
-///                 ((URLClassLoader) new Main().getClass().getClassLoader()).getURLs()) 
-///         {
-///             System.out.printf(" u2: %s\n", u);
-///         }
-/// 
-///         for(URL u: 
-///                 ((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs()) 
-///         {
-///             System.out.printf(" u3: %s\n", u);
-///         }
-
     }
 
 
