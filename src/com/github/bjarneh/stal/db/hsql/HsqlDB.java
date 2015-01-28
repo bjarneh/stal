@@ -313,6 +313,18 @@ public class HsqlDB implements DB {
     }
 
 
+    private void assertDayExists(Date date, Connection conn)
+        throws SQLException
+    {
+        Day d = getDayFromPK( date, conn );
+        if( d == null ){
+            d = new Day();
+            d.id = date;
+            createDay( d, conn );
+        }
+    }
+
+
     // Day end
 
 
@@ -558,6 +570,7 @@ public class HsqlDB implements DB {
 
         job.setTimeUsed();
         assertCompanyExists(job.company, conn);
+        assertDayExists(job.dayId, conn);
 
         PreparedStatement pstmt = conn.prepareStatement(SQL.JOB_CREATE);
         pstmt.setDate(i++, job.dayId);

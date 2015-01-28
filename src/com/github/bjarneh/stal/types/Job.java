@@ -15,6 +15,7 @@ import com.github.bjarneh.hour.util.htm;
 
 // json
 import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.JsonStructure;
 
 /**
@@ -149,13 +150,32 @@ public class Job {
     }
 
 
+    public static Job fromJson(JsonObject jsonObj)
+        throws Exception
+    {
+        Job j     = new Job();
+
+        j.id      = jsonObj.getJsonNumber("id").longValue();
+        j.dayId   = Date.valueOf(jsonObj.getString("dayId"));
+        j.company = jsonObj.getString("company");
+        j.start   = Timestamp.valueOf(jsonObj.getString("start"));
+        j.stop    = Timestamp.valueOf(jsonObj.getString("stop"));
+        if( jsonObj.containsKey("total") ){
+            j.total   = jsonObj.getJsonNumber("total").doubleValue();
+        }
+        j.what    = jsonObj.getString("what");
+
+        return j;
+    }
+
+
     public JsonStructure toJson(){
         return Json.createObjectBuilder()
                    .add("id", id)
-                   .add("dayId", dayId.getTime())
+                   .add("dayId", dayId.toString())
                    .add("company", company)
-                   .add("start", start.getTime())
-                   .add("stop", stop.getTime())
+                   .add("start", start.toString())
+                   .add("stop", stop.toString())
                    .add("total", total)
                    .add("what", what)
                    .build();

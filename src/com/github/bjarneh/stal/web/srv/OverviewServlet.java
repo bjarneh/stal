@@ -106,7 +106,7 @@ public class OverviewServlet extends CalendarServlet {
         cal.set(Calendar.DAY_OF_MONTH, max);
         last  = Day.fromCalendar( cal );
 
-        System.out.printf(" %s -> %s \n", first.id, last.id);
+        //System.out.printf(" %s -> %s \n", first.id, last.id);
 
         cal.setTime( now );
 

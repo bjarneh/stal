@@ -59,6 +59,13 @@ public class Day{
     }
 
 
+    public static Day fromString(String strDate){
+        Day day = new Day(); 
+        day.id  = Date.valueOf(strDate);
+        return day;
+    }
+
+
     public htm.Node getHtml(){
 
         htm.Node table = htm.table()
