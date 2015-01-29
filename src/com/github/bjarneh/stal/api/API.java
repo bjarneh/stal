@@ -24,7 +24,6 @@ import org.eclipse.jetty.util.log.Logger;
 // local
 import com.github.bjarneh.stal.db.DB;
 import com.github.bjarneh.stal.db.hsql.HsqlDB;
-import com.github.bjarneh.stal.types.User;
 import com.github.bjarneh.stal.types.Day;
 import com.github.bjarneh.stal.types.Job;
 import com.github.bjarneh.stal.types.Pay;
@@ -64,13 +63,6 @@ public class API {
         return getAPI(null);
     }
 
-
-    /** 
-     * Wrapper for {@link #DB.getUserFromPK}
-     */
-    public User getUserFromPK(String pk) throws Exception {
-        return db.getUserFromPK( pk );
-    }
 
 
     /**
@@ -176,4 +168,10 @@ public class API {
         return db.intervalJobs(start, stop);
     }
 
+    /**
+     * Wrapper for {@link #DB.getJobTotalHours}
+     */
+    public double getJobTotalHours(String company) throws Exception {
+        return db.getJobTotalHours(company);
+    }
 }

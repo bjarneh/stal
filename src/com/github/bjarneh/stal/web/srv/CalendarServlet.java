@@ -18,6 +18,10 @@ import java.util.regex.Matcher;
 import java.sql.Timestamp;
 import static java.lang.String.format;
 
+// jetty
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
+
 // servlet api
 import javax.servlet.http.HttpServlet;
 import javax.servlet.ServletException;
@@ -30,7 +34,6 @@ import com.github.bjarneh.utilz.Tuple;
 
 // local
 import com.github.bjarneh.stal.api.API;
-import com.github.bjarneh.stal.types.User;
 import com.github.bjarneh.hour.util.htm;
 import com.github.bjarneh.stal.types.Day;
 import com.github.bjarneh.stal.types.Job;
@@ -45,8 +48,8 @@ import com.github.bjarneh.stal.types.Job;
 
 public class CalendarServlet extends ApiServlet {
 
-///     private static final Logger log =
-///         Logger.getLogger( CalendarServlet.class.getName() );
+
+    static final Logger log = Log.getLogger( CalendarServlet.class );
 
 
     // to be used by parseTimestamp

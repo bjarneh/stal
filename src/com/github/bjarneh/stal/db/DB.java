@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.sql.Date;
 
 // local
-import com.github.bjarneh.stal.types.User;
 import com.github.bjarneh.stal.types.Day;
 import com.github.bjarneh.stal.types.Job;
 import com.github.bjarneh.stal.types.Pay;
@@ -37,15 +36,6 @@ import com.github.bjarneh.stal.types.Pay;
  */
 
 public interface DB {
-
-
-    /**
-     * Return a row from the USER table.
-     *
-     * @param pk primary key of user
-     * @return user object  [row]
-     */
-    public User getUserFromPK(String pk) throws Exception;
 
     /**
      * Save a new Day object.
@@ -136,4 +126,14 @@ public interface DB {
      * @return all jobs in interval
      */
     public ArrayList<Job> intervalJobs(Day start, Day stop) throws Exception;
+
+
+    /**
+     * Return hours based on a company name, or all hours.
+     *
+     * @param company name of company to filter hours for
+     *        if this is null we return hours for all companies
+     * @return all hours used, or hours used for a single company
+     */
+    public double getJobTotalHours(String company) throws Exception;
 }

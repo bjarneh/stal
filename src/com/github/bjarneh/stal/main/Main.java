@@ -54,6 +54,7 @@ import com.github.bjarneh.web.srv.HelloServlet;
 import com.github.bjarneh.web.srv.CompanyServlet;
 import com.github.bjarneh.web.srv.CalendarServlet;
 import com.github.bjarneh.web.srv.OverviewServlet;
+import com.github.bjarneh.web.srv.StatServlet;
 import com.github.bjarneh.web.rest.JobServlet;
 
 /**
@@ -125,6 +126,7 @@ public class Main {
         put("/calendar", new CalendarServlet());
         put("/overview", new OverviewServlet());
         put("/company", new CompanyServlet());
+        put("/stat", new StatServlet());
         // REST API
         put("/rest/job", new JobServlet());
     }};

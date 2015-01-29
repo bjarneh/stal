@@ -92,11 +92,8 @@
         </form>
 
     </body>
+
     <script type="text/javascript">
-
-        $(document).ready(function(){
-            console.log("ok");
-        });
-
     </script>
+
 </html>

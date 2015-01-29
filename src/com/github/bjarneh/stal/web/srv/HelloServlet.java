@@ -14,23 +14,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-// local
-import com.github.bjarneh.stal.types.User;
-
 
 public class HelloServlet extends ApiServlet {
 
-
     private String greeting = "Session";
 
-
     public HelloServlet(){}
-
 
     public HelloServlet(String greeting) {
         this.greeting=greeting;
     }
-
 
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
         throws ServletException, IOException
@@ -41,32 +34,6 @@ public class HelloServlet extends ApiServlet {
         writer.println("<h1>"+greeting+"</h1>");
         writer.println("session=" + req.getSession(true).getId());
 
-        dumpParams( req, new PrintWriter(System.out, true) );
-
-        if( req.getParameter("u") != null ){
-            User u = getUserFromParams( req );
-            if( u != null ){
-                writer.println("<dl>");
-                writer.println(" <dt> Id </dt>");
-                writer.println(" <dd> "+ u.id +"</dd>");
-                writer.println(" <dt> Name </dt>");
-                writer.println(" <dd> "+ u.name +" </dd>");
-                writer.println("</dl>");
-            }
-        }
-    }
-
-
-    protected User getUserFromParams(HttpServletRequest req)
-        throws ServletException
-    {
-        try{
-            
-            return api.getUserFromPK( req.getParameter("u") );
-
-        }catch(Exception e){
-            throw new ServletException( e );
-        }
     }
 
 }

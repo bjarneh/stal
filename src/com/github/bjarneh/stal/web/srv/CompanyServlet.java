@@ -18,13 +18,9 @@ import java.util.regex.Matcher;
 import java.sql.Timestamp;
 import static java.lang.String.format;
 
-// local
-import com.github.bjarneh.stal.api.API;
-import com.github.bjarneh.utilz.handy;
-import com.github.bjarneh.hour.util.htm;
-import com.github.bjarneh.stal.types.Day;
-import com.github.bjarneh.stal.types.Job;
-import com.github.bjarneh.stal.types.Pay;
+// jetty
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
 
 // servlet api
 import javax.servlet.http.HttpServlet;
@@ -32,6 +28,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+// local
+import com.github.bjarneh.stal.api.API;
+import com.github.bjarneh.utilz.handy;
+import com.github.bjarneh.hour.util.htm;
+import com.github.bjarneh.stal.types.Day;
+import com.github.bjarneh.stal.types.Job;
+import com.github.bjarneh.stal.types.Pay;
 
 /**
  * Respond to /company requests, display company info etc..
@@ -42,8 +45,9 @@ import javax.servlet.http.HttpServletResponse;
 
 public class CompanyServlet extends ApiServlet {
 
-///     private static final Logger log =
-///         Logger.getLogger( CompanyServlet.class.getName() );
+
+    static final Logger log = Log.getLogger( CompanyServlet.class );
+
 
     /**
      * Update company info.
@@ -93,7 +97,7 @@ public class CompanyServlet extends ApiServlet {
     }
 
 
-    private ArrayList<String> companyIds()
+    protected ArrayList<String> companyIds()
         throws ServletException
     {
         try{

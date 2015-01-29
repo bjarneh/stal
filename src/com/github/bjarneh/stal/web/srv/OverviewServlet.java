@@ -18,6 +18,16 @@ import java.util.regex.Matcher;
 import java.sql.Timestamp;
 import static java.lang.String.format;
 
+// jetty
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
+
+// servlet api
+import javax.servlet.http.HttpServlet;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 // local
 import com.github.bjarneh.stal.api.API;
 import com.github.bjarneh.utilz.handy;
@@ -26,12 +36,6 @@ import com.github.bjarneh.utilz.Tuple;
 import com.github.bjarneh.stal.types.Day;
 import com.github.bjarneh.stal.types.Job;
 
-// servlet api
-import javax.servlet.http.HttpServlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * Respond to /overview requests, filter on projects, count hours etc.
  *
@@ -39,12 +43,10 @@ import javax.servlet.http.HttpServletResponse;
  * @author bjarneh@ifi.uio.no
  */
 
-
 public class OverviewServlet extends CalendarServlet {
 
-///     private static final Logger log =
-///         Logger.getLogger( OverviewServlet.class.getName() );
 
+    static final Logger log = Log.getLogger( OverviewServlet.class );
 
 
     /**

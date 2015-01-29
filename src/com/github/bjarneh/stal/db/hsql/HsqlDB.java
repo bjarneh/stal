@@ -32,7 +32,6 @@ import com.github.bjarneh.utilz.handy;
 
 // local
 import com.github.bjarneh.stal.db.DB;
-import com.github.bjarneh.stal.types.User;
 import com.github.bjarneh.stal.types.Day;
 import com.github.bjarneh.stal.types.Job;
 import com.github.bjarneh.stal.types.Pay;
@@ -109,7 +108,7 @@ public class HsqlDB implements DB {
                 tableCount = result.getInt("MYTOTAL");
             }
             
-            if( tableCount != 4 ){
+            if( tableCount != 3 ){
                 String batchQ = 
                     new String(io.wget(
                             res.get().url("misc/sql/hour.sql")));
@@ -124,56 +123,6 @@ public class HsqlDB implements DB {
         }
     }
  
-
-    // start User
-
-    /**
-     * {@inheritDoc}
-     */
-    public User getUserFromPK(String pk)
-        throws SQLException
-    {
-        try(Connection conn = getConn()){
-            conn.setReadOnly( true );
-            return getUserFromPK( pk, conn );
-        }
-    }
-
-
-    private User getUserFromPK(String pk, Connection conn)
-        throws SQLException
-    {
-        User user = null;
-
-        try(PreparedStatement pstmt =
-                conn.prepareStatement(SQL.USER_FROM_PK) )
-        {
-            pstmt.setString(1, pk);
-            ResultSet result = pstmt.executeQuery();
-
-            if( result.next() ){
-                user = fillUserFromResultset(result);
-            }
-
-        }
-
-        return user;
-    }
-
-
-    private User fillUserFromResultset(ResultSet result)
-        throws SQLException
-    {
-        User user = new User();
-        user.id   = result.getString("ID");
-        user.name = result.getString("NAME");
-        return user;
-    }
-
-
-
-    // end User
-
 
     // Day start
 
@@ -726,6 +675,44 @@ public class HsqlDB implements DB {
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public double getJobTotalHours(String company)
+        throws SQLException
+    {
+        try(Connection conn = getConn()){
+            conn.setReadOnly( true );
+            return getJobTotalHours(company, conn);
+        }
+    }
+
+
+    private double getJobTotalHours(String company, Connection conn)
+        throws SQLException
+    {
+
+        StringBuilder q = 
+            new StringBuilder("SELECT SUM(JOB.TOTAL) AS SUMTOTAL FROM JOB");
+        if( company != null  ){
+            q.append(" WHERE JOB.COMPANY = ? ");
+        }
+
+        PreparedStatement pstmt = conn.prepareStatement(q.toString());
+        if( company != null  ){
+            pstmt.setString(1, company);
+        }
+
+        ResultSet result = pstmt.executeQuery();
+        if( result.next() ){
+            return result.getDouble("SUMTOTAL");
+        }
+
+        throw new SQLException("This should never happen");
+
+    }
+
+
     // Job end
 
 
@@ -742,10 +729,7 @@ public class HsqlDB implements DB {
             "  WHERE                                       "+
             "         TABLE_SCHEM = 'PUBLIC'               "+
             "  AND                                         "+
-            "         TABLE_NAME IN ('JOB', 'PAY', 'DAY', 'USER')  ";
-
-        //TODO REMOVE USER
-
+            "         TABLE_NAME IN ('JOB', 'PAY', 'DAY')  ";
 
         // end misc
 

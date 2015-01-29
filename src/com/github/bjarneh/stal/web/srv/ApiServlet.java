@@ -36,6 +36,7 @@ public class ApiServlet extends HttpServlet {
 
     static final Logger log = Log.getLogger( ApiServlet.class );
 
+
     protected API api;
 
     static String dottedLine = 
