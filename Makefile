@@ -2,18 +2,23 @@
 
 JZ=jz
 
-build: $(shell find src -type f)
+
+build: javaf
 	@$(JZ)
 
-stal: $(shell find src -type f)
+null: javaf
 	@$(JZ) -0 -o stal
 
-pack:
+stal: javaf
 	@$(JZ) -o stal
 
-compress:
+compress: javaf
 	@$(JZ) -o stal -z
 
+install: compress
+	mv ./stal ./bin
+
+javaf: $(shell find src -type f)
 
 clean:
 	@$(JZ) -clean
@@ -23,4 +28,4 @@ doc:
 	@$(JZ) -doc
 
 
-.PHONY: build, stal, pack, clean, doc
+.PHONY: build, javaf, null, stal, compress, install, clean, doc

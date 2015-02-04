@@ -72,7 +72,7 @@ class Job(dict):
     def short_what(self, n):
         """ return at most n chars of the 'what' message """
         if self['what'] and len(self['what']) > n:
-            return self['what'][0:n] + '..'
+            return self['what'].decode('utf-8')[0:n] + '..'
         else:
             return self['what']
 
@@ -161,10 +161,13 @@ def parse_file( f, date_stub ):
                     job = Job()
                     job['id']      = -1
                     job['dayId']   = day
-                    job['what']    = m.group(4).strip().capitalize()
+##                     job['what']    = m.group(4).strip().capitalize()
+                    job['what']    = m.group(4).strip()
                     job['company'] = m.group(3).strip()
                     job['start']   = day + ' '+ m.group(1) + ':00.000'
                     job['stop']    = day + ' '+ m.group(2) + ':00.000'
+                    if job['what']:
+                        job['what'] = job['what'][0].upper() + job['what'][1:]
                     jobs.append( job )
                 else:
                     if job:
