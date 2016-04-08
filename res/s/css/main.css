@@ -163,12 +163,21 @@ table.timesheet td {
     border: 1px solid #333333;
 }
 
-
-table.timesheet input {
+table.timesheet input[type=text] {
     color: inherit;
     background-color: transparent;
     border: 0px;
     padding: 0px;
+    font-size: 16px;
+}
+
+/* TODO(bh) does not work */
+table.timesheet input[type=checkbox] {
+    appearance: none;
+    color: white;
+    background-color: grey;
+    border: 0px;
+    padding: 0px 2px 0px 2px;
     font-size: 16px;
 }
 
@@ -189,6 +198,13 @@ table.overview {
 table.overview td {
     padding: 3px 7px 3px 7px;
     border: 1px solid #333333;
+}
+
+table.overview td.mono {
+    text-align: center;
+    font-family: monospace;
+    /* background-color: green; */
+    border: 1px solid green;
 }
 
 table.overview th {

@@ -10,7 +10,7 @@
         <form action='${postURL}' method='POST'>
 
             <h2>
-                <a class='nounderline' href='${contextPath}'>
+                <a class='nounderline' href='/'>
                     Calendar ${year}
                 </a>
             </h2>

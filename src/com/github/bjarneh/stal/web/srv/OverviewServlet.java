@@ -70,18 +70,21 @@ public class OverviewServlet extends CalendarServlet {
     {
         Tuple<htm.Node, htm.Node> prevNext;
 
+        String filter       = req.getParameter("filter");
         Calendar calendar   = getCalendar(req);
-        ArrayList<Job> jobs = jobsThisMonth(calendar);
+        ArrayList<Job> jobs = jobsThisMonth(calendar, filter);
+        String todayQ       = queryToday(calendar);
+
+        req.setAttribute("todayQ", todayQ);
 
         req.setAttribute("year", calendar.get(Calendar.YEAR));
         prevNext = getPrevNextLinks(calendar);
         req.setAttribute("prev", prevNext.getLeft());
         req.setAttribute("next", prevNext.getRight());
 
-        req.setAttribute("overview", getOverviewTable(jobs));
+        req.setAttribute("overview", getOverviewTable(jobs, todayQ, filter));
         req.setAttribute("months", getMonths(calendar));
         req.setAttribute("contextPath",req.getContextPath());
-        req.setAttribute("todayQ", queryToday(calendar));
 
         req.getRequestDispatcher("jsps/overview.jsp").forward(req, resp); 
     }
@@ -93,7 +96,7 @@ public class OverviewServlet extends CalendarServlet {
     }
 
 
-    private ArrayList<Job> jobsThisMonth(Calendar cal)
+    private ArrayList<Job> jobsThisMonth(Calendar cal, String filter)
         throws ServletException
     {
 
@@ -114,7 +117,7 @@ public class OverviewServlet extends CalendarServlet {
 
 
         try{
-            jobs = api.intervalJobs(first, last);
+            jobs = api.intervalJobs(first, last, filter);
         }catch(Exception e){
             throw new ServletException(e.getMessage(), e);
         }
@@ -124,12 +127,12 @@ public class OverviewServlet extends CalendarServlet {
     }
 
 
-    public htm.Node getOverviewTable(List<Job> jobs){
+    public htm.Node getOverviewTable(List<Job> jobs, String q, String filter){
 
         htm.Node table = htm.table().prop("class","overview");
 
         for(Job job: jobs){
-            job.addOverviewRow( table );
+            job.addOverviewRow( table, q, handy.isWhiteOrNull(filter) );
         }
 
         return table;

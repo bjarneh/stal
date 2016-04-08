@@ -103,7 +103,7 @@ public class CalendarServlet extends ApiServlet {
         throws IOException, ServletException
     {
         // debug: see what's going on..
-        dumpParams( req, new PrintWriter(System.out, true) );
+        // dumpParams( req, new PrintWriter(System.out, true) );
         
         // save
         saveDay( dayJobsFromParams(req) );
@@ -142,6 +142,7 @@ public class CalendarServlet extends ApiServlet {
     }
 
 
+    // TODO(bh) this may not handle leap years very well
     protected Calendar getCalendar(HttpServletRequest req){
 
         Calendar cal = Calendar.getInstance();
@@ -368,6 +369,7 @@ public class CalendarServlet extends ApiServlet {
         Job job;
         Map<String,String> jobParams;
         ArrayList<Job> jobs = new ArrayList<Job>();
+        boolean delete;
 
         for(String key: map.keySet()){
             jobParams = map.get(key);
@@ -383,7 +385,12 @@ public class CalendarServlet extends ApiServlet {
             if( handy.isFloat(jobParams.get("total")) ){
                 job.total = handy.toDouble(jobParams.get("total"));
             }
-            // only add jobs with a company specified
+            // delete jobs with 'delete' checkbox checked
+            // or if no company name is specified, the
+            delete = jobParams.containsKey("delete") &&
+                     jobParams.get("delete").equals("on");
+            // delete checkbox == no company name == delete
+            if( delete ){ job.company = null; }
             if( !handy.isWhiteOrNull(job.company) ){
                 jobs.add( job );
             } else {

@@ -164,8 +164,10 @@ public class API {
     /**
      * Wrapper for {@link #DB.intervalJobs}
      */
-    public ArrayList<Job> intervalJobs(Day start, Day stop) throws Exception {
-        return db.intervalJobs(start, stop);
+    public ArrayList<Job> intervalJobs(Day start, Day stop, String filter)
+        throws Exception
+    {
+        return db.intervalJobs(start, stop, filter);
     }
 
     /**

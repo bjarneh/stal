@@ -125,8 +125,8 @@ public interface DB {
      * @param stop last day of interval
      * @return all jobs in interval
      */
-    public ArrayList<Job> intervalJobs(Day start, Day stop) throws Exception;
-
+    public ArrayList<Job> intervalJobs(Day start, Day stop, String filter)
+        throws Exception;
 
     /**
      * Return hours based on a company name, or all hours.

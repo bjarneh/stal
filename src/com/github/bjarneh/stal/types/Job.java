@@ -35,6 +35,16 @@ public class Job {
     public Double total;
     public String what;
 
+    static final String[] WEEK_DAYS = {
+        "",  // No day in Calendar is 0
+        "Su",
+        "Mo",
+        "Tu",
+        "We",
+        "Th",
+        "Fr",
+        "Sa",
+    };
 
     static final long MINUTE_MILLIS = 1000 * 60;
     static final long HOUR_MILLIS   = MINUTE_MILLIS * 60;
@@ -49,11 +59,17 @@ public class Job {
 
         htm.Node tr, input;
         tr = htm.tr();
+        // delete toggle
+        input = htm.input()
+                   .type("checkbox")
+                   .name("delete_"+uid);
+        tr.add(htm.td().add( input ));
         // company
         input = htm.input()
                    .type("text")
                    .name("company_"+uid)
-                   .title("Company name (unique)")
+                   .title("Company [blank = delete]")
+                   .prop("placeholder","Company [blank = delete]")
                    .prop("size","28")
                    .value(company);
         tr.add(htm.td().add( input ));
@@ -93,7 +109,7 @@ public class Job {
                    .title("Short description of what you did")
                    .text(what);
         tr.add(htm.td()
-                  .prop("colspan","4")
+                  .prop("colspan","5")
                   .add( input ));
         table.add( tr );
     }
@@ -122,13 +138,22 @@ public class Job {
     }
 
 
-    public void addOverviewRow(htm.Node table){
+    public void addOverviewRow(htm.Node table, String q, boolean addFilter){
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(dayId.getTime());
-        int day = cal.get(Calendar.DAY_OF_MONTH);
+        int day  = cal.get(Calendar.DAY_OF_MONTH);
+        int wday = cal.get(Calendar.DAY_OF_WEEK);
+        if( addFilter ){
+            q += "&amp;filter="+ htm.urlEncode( company );
+        }
         table.add(htm.tr()
                      .add(htm.th().text(day))
-                     .add(htm.td().text(company))
+                     .add(htm.td().prop("class","mono")
+                             .text(WEEK_DAYS[wday]))
+                     .add(htm.td()
+                             .add(htm.a()
+                                     .href(q)
+                                     .text(company)))
                      .add(htm.td().text(fmtTime(start)))
                      .add(htm.td().text(fmtTime(stop)))
                      .add(htm.td().text(total))

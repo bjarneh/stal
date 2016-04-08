@@ -235,7 +235,7 @@ public class JobServlet extends ApiServlet {
                 Day fromDay = Day.fromString( start );
                 Day toDay   = Day.fromString( stop );
 
-                ArrayList<Job> jobs = api.intervalJobs( fromDay, toDay );
+                ArrayList<Job> jobs = api.intervalJobs( fromDay, toDay, null );
 
                 for(Job j: jobs){
                     builder.add(j.toJson());

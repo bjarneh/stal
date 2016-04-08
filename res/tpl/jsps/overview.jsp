@@ -8,7 +8,7 @@
     <body>
 
         <h2>
-            <a class='nounderline' href='${contextPath}'>
+            <a class='nounderline' href='/'>
                 Overview ${year}
             </a>
         </h2>

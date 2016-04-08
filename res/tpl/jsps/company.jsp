@@ -15,7 +15,7 @@
             <input type='hidden' name='id' value='${id}' />
 
             <h2>
-                <a class='nounderline' href='${contextPath}'>
+                <a class='nounderline' href='/'>
                     Company
                 </a>
             </h2>

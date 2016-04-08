@@ -643,27 +643,37 @@ public class HsqlDB implements DB {
     /**
      * {@inheritDoc}
      */
-    public ArrayList<Job> intervalJobs(Day start, Day stop)
+    public ArrayList<Job> intervalJobs(Day start, Day stop, String filter)
         throws SQLException
     {
         ArrayList<Job> jobs = null;
 
         try(Connection conn = getConn()){
-            jobs = intervalJobs(start, stop, conn);
+            jobs = intervalJobs(start, stop, filter, conn);
         }
 
         return jobs;
     }
 
 
-    private ArrayList<Job> intervalJobs(Day start, Day stop, Connection conn)
+    private ArrayList<Job>
+        intervalJobs(Day start, Day stop, String filter, Connection conn)
         throws SQLException
     {
         ArrayList<Job> jobs = new ArrayList<Job>();
 
-        PreparedStatement pstmt = conn.prepareStatement(SQL.JOB_INTERVAL);
+        String q = SQL.JOB_INTERVAL;
+        if( !handy.isWhiteOrNull( filter ) ){
+            q += " AND COMPANY = ? ";
+        }
+
+        PreparedStatement pstmt = conn.prepareStatement(q);
         pstmt.setDate(1, start.id);
         pstmt.setDate(2, stop.id);
+
+        if( !handy.isWhiteOrNull( filter ) ){
+            pstmt.setString(3, filter);
+        }
 
         ResultSet result = pstmt.executeQuery();
         while( result.next() ){
