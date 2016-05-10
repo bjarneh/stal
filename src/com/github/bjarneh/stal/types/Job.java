@@ -139,17 +139,26 @@ public class Job {
 
 
     public void addOverviewRow(htm.Node table, String q, boolean addFilter){
+
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(dayId.getTime());
+
+        int year = cal.get(Calendar.YEAR);
         int day  = cal.get(Calendar.DAY_OF_MONTH);
         int wday = cal.get(Calendar.DAY_OF_WEEK);
+        int yday = cal.get(Calendar.DAY_OF_YEAR);
+
         if( addFilter ){
             q += "&amp;filter="+ htm.urlEncode( company );
         }
         table.add(htm.tr()
-                     .add(htm.th().text(day))
+                     .add(htm.th()
+                             .add(htm.a()
+                                 .prop("class","discrete")
+                                 .href("/d/calendar?y="+year+"&amp;d="+yday)
+                                 .text(day)))
                      .add(htm.td().prop("class","mono")
-                             .text(WEEK_DAYS[wday]))
+                                  .text(WEEK_DAYS[wday]))
                      .add(htm.td()
                              .add(htm.a()
                                      .href(q)

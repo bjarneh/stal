@@ -19,6 +19,12 @@ html {
 /**     font-family: Monospace; **/
 }
 
+a.discrete {
+    text-decoration: none;
+}
+a.discrete:hover {
+    text-decoration: underline;
+}
 
 h2 {
     font-size: 31px;
@@ -202,9 +208,9 @@ table.overview td {
 
 table.overview td.mono {
     text-align: center;
-    font-family: monospace;
     /* background-color: green; */
     border: 1px solid green;
+    font-family: monospace;
 }
 
 table.overview th {

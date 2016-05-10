@@ -125,6 +125,7 @@ public class CalendarServlet extends ApiServlet {
         Tuple<htm.Node, htm.Node> prevNext;
 
         Calendar calendar = getCalendar(req);
+
         req.setAttribute("day", fetchDay(calendar));
 
         req.setAttribute("year", calendar.get(Calendar.YEAR));
@@ -133,6 +134,7 @@ public class CalendarServlet extends ApiServlet {
         req.setAttribute("next", prevNext.getRight());
 
         req.setAttribute("tableMonth", getTableMonth(calendar));
+
         req.setAttribute("months", getMonths(calendar));
         req.setAttribute("contextPath",req.getContextPath());
         req.setAttribute("postURL", pathQueryToday(calendar));
@@ -212,6 +214,7 @@ public class CalendarServlet extends ApiServlet {
 
     protected Tuple<htm.Node, htm.Node> getPrevNextLinks(Calendar cal){
 
+        Date now         = cal.getTime();
         int currentYear  = cal.get(Calendar.YEAR);
 
         htm.Node prev, next;
@@ -225,7 +228,7 @@ public class CalendarServlet extends ApiServlet {
                              .prop("class","yearlink")
                              .style("float:right");
 
-        cal.set(Calendar.YEAR, currentYear); // reset calendar
+        cal.setTime(now); // reset calendar
 
         return new Tuple<htm.Node, htm.Node>(prev, next);
 
