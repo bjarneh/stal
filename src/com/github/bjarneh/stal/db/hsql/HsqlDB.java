@@ -667,6 +667,8 @@ public class HsqlDB implements DB {
             q += " AND COMPANY = ? ";
         }
 
+        q += " ORDER BY DAYID ";
+
         PreparedStatement pstmt = conn.prepareStatement(q);
         pstmt.setDate(1, start.id);
         pstmt.setDate(2, stop.id);
@@ -674,6 +676,7 @@ public class HsqlDB implements DB {
         if( !handy.isWhiteOrNull( filter ) ){
             pstmt.setString(3, filter);
         }
+
 
         ResultSet result = pstmt.executeQuery();
         while( result.next() ){
