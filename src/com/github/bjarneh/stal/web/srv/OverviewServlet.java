@@ -96,43 +96,28 @@ public class OverviewServlet extends CalendarServlet {
     }
 
 
-    private ArrayList<Job> jobsThisMonth(Calendar cal, String filter)
-        throws ServletException
-    {
-
-        Day first, last;
-        ArrayList<Job> jobs = null;
-
-        Date now = cal.getTime();
-        int max  = cal.getActualMaximum(cal.DAY_OF_MONTH);
-
-        cal.set(Calendar.DAY_OF_MONTH, 1);
-        first = Day.fromCalendar( cal );
-        cal.set(Calendar.DAY_OF_MONTH, max);
-        last  = Day.fromCalendar( cal );
-
-        //System.out.printf(" %s -> %s \n", first.id, last.id);
-
-        cal.setTime( now );
-
-
-        try{
-            jobs = api.intervalJobs(first, last, filter);
-        }catch(Exception e){
-            throw new ServletException(e.getMessage(), e);
-        }
-
-        return jobs;
-
-    }
-
-
     public htm.Node getOverviewTable(List<Job> jobs, String q, String filter){
 
+        Calendar cal = Calendar.getInstance();
         htm.Node table = htm.table().prop("class","overview");
 
+        double tot = 0.0;
+
         for(Job job: jobs){
-            job.addOverviewRow( table, q, handy.isWhiteOrNull(filter) );
+            job.addOverviewRow( cal, table, q, handy.isWhiteOrNull(filter) );
+            if( job.total != null ){
+                tot += job.total;
+            }
+        }
+
+        if( tot > 0.0 ){
+            table.add(htm.tr()
+                         .add(htm.td()
+                                 .text("Total")
+                                 .prop("colspan","5"))
+                         .add(htm.td()
+                                 .textFmt( "%.1f", tot ))
+                         .add(htm.td()));
         }
 
         return table;

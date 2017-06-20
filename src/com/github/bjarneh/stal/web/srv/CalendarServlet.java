@@ -8,7 +8,10 @@ package com.github.bjarneh.web.srv;
 // std
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Date;
+import java.util.List;
 import java.util.ArrayList;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -125,15 +128,17 @@ public class CalendarServlet extends ApiServlet {
         Tuple<htm.Node, htm.Node> prevNext;
 
         Calendar calendar = getCalendar(req);
+        Day day = fetchDay(calendar);
+        HashSet<Integer> busy = busyDays( calendar );
 
-        req.setAttribute("day", fetchDay(calendar));
+        req.setAttribute("day", day);
 
         req.setAttribute("year", calendar.get(Calendar.YEAR));
         prevNext = getPrevNextLinks(calendar);
         req.setAttribute("prev", prevNext.getLeft());
         req.setAttribute("next", prevNext.getRight());
 
-        req.setAttribute("tableMonth", getTableMonth(calendar));
+        req.setAttribute("tableMonth", getTableMonth(calendar, busy));
 
         req.setAttribute("months", getMonths(calendar));
         req.setAttribute("contextPath",req.getContextPath());
@@ -235,7 +240,7 @@ public class CalendarServlet extends ApiServlet {
     }
 
 
-    private htm.Node getTableMonth(Calendar cal){
+    private htm.Node getTableMonth(Calendar cal, Set<Integer> busy){
 
         boolean started   = false;
         int count         = 1;
@@ -262,11 +267,15 @@ public class CalendarServlet extends ApiServlet {
                     started = true;
                     a = linkToday(cal).text(count++);
 
-                    if(cal.get(Calendar.DAY_OF_YEAR) == currentDay ){
+                    if( cal.get(Calendar.DAY_OF_YEAR) == currentDay ){
                         a.prop("class","active");
+                    }else if( busy.contains(cal.get(Calendar.DAY_OF_YEAR)) ){
+                        a.prop("class","has_hours");
                     }
+
                     tr.add(htm.td().add( a ));
                     cal.set(Calendar.DAY_OF_MONTH, count);
+
 
                 }else{
                     tr.add(htm.td());
@@ -436,6 +445,59 @@ public class CalendarServlet extends ApiServlet {
 
         return new Timestamp( cal.getTime().getTime() );
 
+    }
+
+
+    protected ArrayList<Job> jobsThisMonth(Calendar cal, String filter)
+        throws ServletException
+    {
+
+        Day first, last;
+        ArrayList<Job> jobs = null;
+
+        Date now = cal.getTime();
+        int max  = cal.getActualMaximum(cal.DAY_OF_MONTH);
+
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        first = Day.fromCalendar( cal );
+        cal.set(Calendar.DAY_OF_MONTH, max);
+        last  = Day.fromCalendar( cal );
+
+        //System.out.printf(" %s -> %s \n", first.id, last.id);
+
+        cal.setTime( now );
+
+        try{
+            jobs = api.intervalJobs(first, last, filter);
+        }catch(Exception e){
+            throw new ServletException(e.getMessage(), e);
+        }
+
+        return jobs;
+
+    }
+
+
+    private HashSet<Integer> busyDays(Calendar cal)
+        throws ServletException
+    {
+        List<Job> jobs = jobsThisMonth(cal, null);
+        HashSet<Integer> busy = new HashSet<>();
+
+        Date now = cal.getTime();
+
+        if( jobs != null && jobs.size() > 0 ){
+            for(Job j: jobs){
+                cal.setTime( j.dayId );
+                busy.add( cal.get(Calendar.DAY_OF_YEAR) );
+            }
+        }
+
+        cal.setTime( now );
+
+        //System.out.printf(" busy: %s\n", busy);
+
+        return busy;
     }
 
 

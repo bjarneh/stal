@@ -101,4 +101,10 @@ public class Day{
         return builder.build();
     }
 
+
+    @Override
+    public String toString(){
+        return toJson().toString();
+    }
+
 }

@@ -161,7 +161,11 @@ table.month a {
     text-decoration: none;
 }
 table.month a:hover {
-    background-color: #333333; /* dark grey */
+    background-color: #333333 !important; /* dark grey */
+}
+
+table.month a.has_hours {
+    background-color: #450517;
 }
 
 table.timesheet td {
@@ -204,6 +208,10 @@ table.overview {
 table.overview td {
     padding: 3px 7px 3px 7px;
     border: 1px solid #333333;
+}
+
+table.overview td.num {
+    text-align: right;
 }
 
 table.overview td.mono {

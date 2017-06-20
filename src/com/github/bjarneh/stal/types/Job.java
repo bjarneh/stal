@@ -138,9 +138,11 @@ public class Job {
     }
 
 
-    public void addOverviewRow(htm.Node table, String q, boolean addFilter){
+    public void addOverviewRow(
+        Calendar cal, htm.Node table, String q, boolean addFilter)
+    {
 
-        Calendar cal = Calendar.getInstance();
+        //Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(dayId.getTime());
 
         int year = cal.get(Calendar.YEAR);
@@ -165,7 +167,9 @@ public class Job {
                                      .text(company)))
                      .add(htm.td().text(fmtTime(start)))
                      .add(htm.td().text(fmtTime(stop)))
-                     .add(htm.td().text(total))
+                     .add(htm.td()
+                             .prop("class","num")
+                             .text(total))
                      .add(htm.td().text(what)));
     }
 
