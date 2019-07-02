@@ -232,6 +232,13 @@ div.overviewpane {
     max-width: 80%;
 }
 
+input#overview_csv {
+    float: right;
+    margin: 0 5px 30px 0;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
 a.active {
     background-color: green;
 }

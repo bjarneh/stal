@@ -25,6 +25,7 @@ import org.eclipse.jetty.util.log.Logger;
 // servlet api
 import javax.servlet.http.HttpServlet;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,7 +57,30 @@ public class OverviewServlet extends CalendarServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
         throws IOException, ServletException
     {
-        doGet(req, resp);
+        resp.setStatus(resp.SC_OK);
+        resp.setContentType("text/csv"); 
+        resp.setHeader("Content-Disposition",
+                "inline; filename=overview_"+ System.currentTimeMillis() + ".csv");
+
+        String filter       = req.getParameter("filter");
+        Calendar calendar   = getCalendar(req);
+        ArrayList<Job> jobs = jobsThisMonth(calendar, filter);
+
+        ServletOutputStream out = resp.getOutputStream();
+        out.print("Customer;Date;From;To;Hours;Description\r\n");
+        double tot = 0.0;
+        for(Job job: jobs){
+            out.print(String.format("\"%s\";%s;%tR;%tR;%s;\"%s\"\r\n",
+                    job.company,job.dayId,job.start,job.stop,job.total,
+                    job.what.replace("\"","'")
+                            .replace("\n"," ")
+                            .replace("\t"," ")));
+            tot += job.total;
+        }
+        if(tot > 0.0){
+            out.print(";;;;"+tot+";\r\n");
+        }
+        out.flush();
     }
 
 
@@ -76,6 +100,8 @@ public class OverviewServlet extends CalendarServlet {
         String todayQ       = queryToday(calendar);
 
         req.setAttribute("todayQ", todayQ);
+         // TODO escape characters that can cause problems in HTML
+        req.setAttribute("filter", filter);
 
         req.setAttribute("year", calendar.get(Calendar.YEAR));
         prevNext = getPrevNextLinks(calendar);

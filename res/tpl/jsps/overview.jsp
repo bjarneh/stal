@@ -20,6 +20,10 @@
         </div>
 
         <div class='rightpane'>
+            <form action='overview${todayQ}' method='POST'>
+                <input id='overview_csv' class='savebutton' type='submit' value='CSV' />
+                <input type='hidden' name='filter' value='${filter}' />
+            </form>
             <table class='months'>
                 ${months}
             </table>
