@@ -142,7 +142,7 @@ public class OverviewServlet extends CalendarServlet {
                                  .text("Total")
                                  .prop("colspan","5"))
                          .add(htm.td()
-                                 .textFmt( "%.1f", tot ))
+                                 .textFmt( "%.2f", tot ))
                          .add(htm.td()));
         }
 
