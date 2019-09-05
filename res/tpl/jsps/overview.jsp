@@ -15,11 +15,12 @@
 
         <%@include file="nav.jspf" %>
 
-        <div class='overviewpane'>
+        <div class='overviewpane' style="${overviewstyle}">
             ${overview}
         </div>
 
-        <div class='rightpane'>
+
+        <div class='rightpane' style='${divstyle}'>
             <form action='overview${todayQ}' method='POST'>
                 <input id='overview_csv' class='savebutton' type='submit' value='CSV' />
                 <input type='hidden' name='filter' value='${filter}' />
@@ -32,6 +33,7 @@
                 ${next}
             </div>
         </div>
+
 
     </body>
 

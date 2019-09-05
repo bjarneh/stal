@@ -103,6 +103,13 @@ public class OverviewServlet extends CalendarServlet {
          // TODO escape characters that can cause problems in HTML
         req.setAttribute("filter", filter);
 
+        if(filter == null){
+            req.setAttribute("divstyle", "display:block");
+        }else{
+            req.setAttribute("divstyle", "display:none");
+            req.setAttribute("overviewstyle", "max-width:97% !important");
+        }
+
         req.setAttribute("year", calendar.get(Calendar.YEAR));
         prevNext = getPrevNextLinks(calendar);
         req.setAttribute("prev", prevNext.getLeft());

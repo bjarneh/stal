@@ -1,5 +1,5 @@
 <%@page pageEncoding="utf-8" %>
-            <div class='nav'>
+            <div class='nav' style='${divstyle}'>
                 <ul>
                     <li><a href="/">▼</a>
                     <ul>
