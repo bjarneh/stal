@@ -108,6 +108,7 @@ public class OverviewServlet extends CalendarServlet {
         }else{
             req.setAttribute("divstyle", "display:none");
             req.setAttribute("overviewstyle", "max-width:97% !important");
+            req.setAttribute("currentMonth", getHumanMonth(calendar));
         }
 
         req.setAttribute("year", calendar.get(Calendar.YEAR));

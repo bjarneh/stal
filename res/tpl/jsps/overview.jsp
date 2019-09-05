@@ -9,7 +9,7 @@
 
         <h2>
             <a class='nounderline' href='/'>
-                Overview ${year}
+                Overview ${year} ${currentMonth}
             </a>
         </h2>
 

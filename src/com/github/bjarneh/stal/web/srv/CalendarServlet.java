@@ -169,6 +169,11 @@ public class CalendarServlet extends ApiServlet {
     }
 
 
+    protected String getHumanMonth(Calendar cal){
+        return months[cal.get(Calendar.MONTH)];
+    }
+
+
     protected htm.Node getMonths(Calendar cal){
 
         Date currentDate = cal.getTime();
