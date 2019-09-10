@@ -667,7 +667,7 @@ public class HsqlDB implements DB {
             q += " AND COMPANY = ? ";
         }
 
-        q += " ORDER BY DAYID ";
+        q += " ORDER BY DAYID,START ";
 
         PreparedStatement pstmt = conn.prepareStatement(q);
         pstmt.setDate(1, start.id);
