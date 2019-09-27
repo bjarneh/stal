@@ -256,7 +256,14 @@ td.active a:hover {
 
 td.week {
     padding-left: 30px;
+    padding-right: 5px;
     color: green;
+}
+
+td.total {
+    padding: 0px 10px 0 10px;
+    color: #444444;
+    border: 1px solid #450517;
 }
 
 

@@ -129,7 +129,7 @@ public class CalendarServlet extends ApiServlet {
 
         Calendar calendar = getCalendar(req);
         Day day = fetchDay(calendar);
-        HashSet<Integer> busy = busyDays( calendar );
+        HashMap<Integer, List<Job>> busy = busyDays( calendar );
 
         req.setAttribute("day", day);
 
@@ -245,7 +245,7 @@ public class CalendarServlet extends ApiServlet {
     }
 
 
-    private htm.Node getTableMonth(Calendar cal, Set<Integer> busy){
+    private htm.Node getTableMonth(Calendar cal, Map<Integer, List<Job>> busyMap){
 
         boolean started   = false;
         int count         = 1;
@@ -253,11 +253,14 @@ public class CalendarServlet extends ApiServlet {
         int lastDayMonth  = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 
         Date d = cal.getTime(); // to be able to reset calendar
+        HashSet<Integer> busy = new HashSet<Integer>(busyMap.keySet());
 
         // do not start counting until we hit current month's start day
         cal.set(Calendar.DAY_OF_MONTH, 1);
         int first = cal.get(Calendar.DAY_OF_WEEK);
         int week  = cal.get(Calendar.WEEK_OF_YEAR);
+
+        double total = 0.0;
 
         htm.Node table = tableHeader();
         htm.Node tr, td, a;
@@ -276,6 +279,11 @@ public class CalendarServlet extends ApiServlet {
                         a.prop("class","active");
                     }else if( busy.contains(cal.get(Calendar.DAY_OF_YEAR)) ){
                         a.prop("class","has_hours");
+                        List<Job> jobs = busyMap.get(cal.get(Calendar.DAY_OF_YEAR));
+                        for(Job j: jobs){
+                            j.setTimeUsed();
+                            total += j.total;
+                        }
                     }
 
                     tr.add(htm.td().add( a ));
@@ -287,6 +295,8 @@ public class CalendarServlet extends ApiServlet {
                 }
             }
             tr.add(htm.td().text(week++).prop("class","week"));
+            tr.add(htm.td().text(total).prop("class","total"));
+            total = 0.0;
         }
 
 
@@ -483,18 +493,23 @@ public class CalendarServlet extends ApiServlet {
     }
 
 
-    private HashSet<Integer> busyDays(Calendar cal)
+    private HashMap<Integer, List<Job>> busyDays(Calendar cal)
         throws ServletException
     {
         List<Job> jobs = jobsThisMonth(cal, null);
-        HashSet<Integer> busy = new HashSet<>();
+        HashMap<Integer, List<Job>> busy = new HashMap<>();
+        int dayOfYear;
 
         Date now = cal.getTime();
 
         if( jobs != null && jobs.size() > 0 ){
             for(Job j: jobs){
                 cal.setTime( j.dayId );
-                busy.add( cal.get(Calendar.DAY_OF_YEAR) );
+                dayOfYear = cal.get(Calendar.DAY_OF_YEAR);
+                if(!busy.containsKey(dayOfYear)){
+                    busy.put(dayOfYear, new ArrayList<Job>());
+                }
+                busy.get( dayOfYear ).add( j );
             }
         }
 
