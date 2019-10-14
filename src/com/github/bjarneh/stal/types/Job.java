@@ -48,6 +48,7 @@ public class Job {
 
     static final long MINUTE_MILLIS = 1000 * 60;
     static final long HOUR_MILLIS   = MINUTE_MILLIS * 60;
+    static final long DAY_MILLIS    = 24 * HOUR_MILLIS;
 
     static String startDefault = "09:00";
     static String stopDefault  = "17:00";
@@ -177,6 +178,9 @@ public class Job {
     public void setTimeUsed(){
         if( total == null && start != null && stop != null ){
             long used = stop.getTime() - start.getTime();
+            if( used < 0 ){
+                used = (stop.getTime() + DAY_MILLIS) - start.getTime();
+            }
             if( used > 0 ){
                 long minutes = (used%HOUR_MILLIS)/MINUTE_MILLIS;
                 double minAsPercent = (double) minutes/60.0;
