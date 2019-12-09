@@ -1,5 +1,6 @@
 #!/bin/bash
 # 
+#
 # mvn dependency:copy-dependencies
 # mkdir lib
 # cp target/dependency/* lib
