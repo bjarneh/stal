@@ -275,9 +275,6 @@ public class CalendarServlet extends ApiServlet {
                     started = true;
                     a = linkToday(cal).text(count++);
 
-                    if( cal.get(Calendar.DAY_OF_YEAR) == currentDay ){
-                        a.prop("class","active");
-                    }
 
                     if( busy.contains(cal.get(Calendar.DAY_OF_YEAR)) ){
                         a.prop("class","has_hours");
@@ -288,6 +285,10 @@ public class CalendarServlet extends ApiServlet {
                                 total += j.total.doubleValue();
                             }
                         }
+                    }
+
+                    if( cal.get(Calendar.DAY_OF_YEAR) == currentDay ){
+                        a.prop("class","active");
                     }
 
                     tr.add(htm.td().add( a ));
