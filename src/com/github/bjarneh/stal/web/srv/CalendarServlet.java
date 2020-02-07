@@ -275,16 +275,18 @@ public class CalendarServlet extends ApiServlet {
                     started = true;
                     a = linkToday(cal).text(count++);
 
-
                     if( busy.contains(cal.get(Calendar.DAY_OF_YEAR)) ){
                         a.prop("class","has_hours");
                         List<Job> jobs = busyMap.get(cal.get(Calendar.DAY_OF_YEAR));
+                        double dayTotal = 0.0;
                         for(Job j: jobs){
                             j.setTimeUsed();
                             if(j.total != null){
                                 total += j.total.doubleValue();
+                                dayTotal += j.total.doubleValue();
                             }
                         }
+                        a.title(String.format("%.1f", dayTotal));
                     }
 
                     if( cal.get(Calendar.DAY_OF_YEAR) == currentDay ){
