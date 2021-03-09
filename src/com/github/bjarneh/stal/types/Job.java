@@ -185,7 +185,7 @@ public class Job {
                 long minutes = (used%HOUR_MILLIS)/MINUTE_MILLIS;
                 double minAsPercent = (double) minutes/60.0;
                 long minutesOk      = (long)  (minAsPercent*100);
-                total = new Double(format("%d.%d",
+                total = Double.valueOf(format("%d.%d",
                             (used/HOUR_MILLIS), minutesOk));
             }
         }

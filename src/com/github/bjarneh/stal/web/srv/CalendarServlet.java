@@ -286,7 +286,7 @@ public class CalendarServlet extends ApiServlet {
                                 dayTotal += j.total.doubleValue();
                             }
                         }
-                        a.title(String.format("%.1f", dayTotal));
+                        a.title(String.format("%.2f", dayTotal));
                     }
 
                     if( cal.get(Calendar.DAY_OF_YEAR) == currentDay ){
