@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
  hour - create JSON and post it to 'stal'
@@ -19,7 +19,8 @@ import re
 import sys
 import getopt
 import json
-import urllib2
+import traceback
+import urllib.request, urllib.error, urllib.parse
 
 __version__ = 1.0
 
@@ -65,6 +66,10 @@ class Job(dict):
         """ convert myself to json """
         return json.dumps( self )
 
+    def to_bytes(self, encoding='utf-8'):
+        """ convert myself to byte """
+        urllib.parse.urlencode(self).encode(encoding)
+
     def __str__(self):
         """ convert myself to string """
         return self.to_json().__str__()
@@ -72,7 +77,7 @@ class Job(dict):
     def short_what(self, n):
         """ return at most n chars of the 'what' message """
         if self['what'] and len(self['what']) > n:
-            return self['what'].decode('utf-8')[0:n] + '..'
+            return self['what'][0:n] + '..'
         else:
             return self['what']
 
@@ -82,9 +87,9 @@ class Job(dict):
 def clear_days( days ):
     """ remove jobs belonging to dates in days """
     for dayId in days:
-        req = urllib2.Request(REST_JOB_URL+'?day='+dayId)
+        req = urllib.request.Request(REST_JOB_URL+'?day='+dayId)
         req.get_method = lambda: 'DELETE'
-        f = urllib2.urlopen(req)
+        f = urllib.request.urlopen(req)
         response = f.read()
         f.close()
         sys.stdout.write('http=%d - %s  DELETE\n'%(f.code, dayId))
@@ -96,10 +101,11 @@ def post_job(job):
 
     global JOB_POSTER_URL
 
-    data = job.to_json()
-    req = urllib2.Request(REST_JOB_URL, data,
-                          {'Content-Type': 'application/json'})
-    f = urllib2.urlopen(req)
+    data = job.to_json().encode('utf-8')
+    req = urllib.request.Request(REST_JOB_URL)
+    req.add_header('Content-Type', 'application/json; charset=utf-8')
+    req.add_header('Content-Length', len(data))
+    f = urllib.request.urlopen(req, data)
     response = f.read()
     f.close()
 
@@ -274,7 +280,7 @@ def main(argv=sys.argv):
                 print( __doc__ );
                 raise SystemExit(0)
             if o in ('-v', '--version'):
-                print( "%s - %s" % (argv[0], __version__));
+                print(( "%s - %s" % (argv[0], __version__)));
                 raise SystemExit(0)
             if o in ('-u', '--url'):
                 REST_JOB_URL = a
@@ -303,10 +309,11 @@ def main(argv=sys.argv):
         # we should be good to go now..
         parse_files( args )
 
-    except SystemExit, inst:
+    except SystemExit as inst:
         pass
-    except Exception, inst:
+    except Exception as inst:
         sys.stderr.write("[ERROR] %s\n" % inst )
+        traceback.print_exc()
         return 1
     return 0
 
